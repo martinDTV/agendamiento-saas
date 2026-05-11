@@ -1,0 +1,18 @@
+¡Bienvenido a {{ platform_name }}!
+
+Hola {{ first_name|default:email }},
+
+Se creó tu cuenta de administrador para "{{ tenant_name }}".
+
+Para empezar a usar tu panel, primero activá tu cuenta con este enlace:
+{{ activation_url }}
+
+Credenciales de acceso:
+  Email:       {{ email }}
+  Contraseña:  {{ password }}
+
+⚠ Esta contraseña es temporal. Te pediremos que la cambies en tu primer inicio de sesión.
+
+El enlace de activación expira en 7 días. Si no esperabas este correo, podés ignorarlo.
+
+— {{ platform_name }}

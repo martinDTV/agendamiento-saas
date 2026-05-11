@@ -1,0 +1,35 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+
+/* ── Sage green palette (default brand) ──────────────────────────────────── */
+@theme {
+  --color-sage-50:  #F1F5F2;
+  --color-sage-100: #DCE8E0;
+  --color-sage-200: #B9D0C0;
+  --color-sage-300: #8FB39A;
+  --color-sage-400: #6E9879;
+  --color-sage-500: #5B7C6B;
+  --color-sage-600: #4A6957;
+  --color-sage-700: #3B5444;
+  --color-sage-800: #2E4235;
+  --color-sage-900: #233329;
+  --color-sage-950: #131D17;
+}
+
+/* ── Force Nuxt UI's primary to use the sage palette ─────────────────────── */
+/* Nuxt UI v3 reads --ui-color-primary-* directly, not the Tailwind name. */
+:root {
+  --ui-color-primary-50:  var(--color-sage-50);
+  --ui-color-primary-100: var(--color-sage-100);
+  --ui-color-primary-200: var(--color-sage-200);
+  --ui-color-primary-300: var(--color-sage-300);
+  --ui-color-primary-400: var(--color-sage-400);
+  --ui-color-primary-500: var(--color-sage-500);
+  --ui-color-primary-600: var(--color-sage-600);
+  --ui-color-primary-700: var(--color-sage-700);
+  --ui-color-primary-800: var(--color-sage-800);
+  --ui-color-primary-900: var(--color-sage-900);
+  --ui-color-primary-950: var(--color-sage-950);
+
+  --ui-primary: var(--color-sage-500);
+}
