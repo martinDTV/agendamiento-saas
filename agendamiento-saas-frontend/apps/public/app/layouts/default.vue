@@ -37,13 +37,13 @@ const whiteLabel = computed(() => tenant.tenant?.plan_flags?.white_label === tru
             <NuxtLink to="/" class="hover:text-sage-500 transition-colors" :class="route.path === '/' ? 'text-sage-500' : ''">
               {{ content.nav.inicio }}
             </NuxtLink>
-            <NuxtLink to="/#servicios" class="hover:text-sage-500 transition-colors">
+            <NuxtLink to="/servicios" class="hover:text-sage-500 transition-colors" :class="route.path === '/servicios' ? 'text-sage-500' : ''">
               {{ content.nav.servicios }}
             </NuxtLink>
-            <NuxtLink to="/#doctores" class="hover:text-sage-500 transition-colors">
+            <NuxtLink to="/equipo" class="hover:text-sage-500 transition-colors" :class="route.path === '/equipo' ? 'text-sage-500' : ''">
               {{ content.nav.equipo }}
             </NuxtLink>
-            <NuxtLink to="/#contacto" class="hover:text-sage-500 transition-colors">
+            <NuxtLink to="/contacto" class="hover:text-sage-500 transition-colors" :class="route.path === '/contacto' ? 'text-sage-500' : ''">
               {{ content.nav.contacto }}
             </NuxtLink>
           </nav>
@@ -101,8 +101,9 @@ const whiteLabel = computed(() => tenant.tenant?.plan_flags?.white_label === tru
               <div>
                 <p class="font-semibold mb-3 text-ink">{{ content.footer.clinicaSectionTitle }}</p>
                 <ul class="space-y-2 text-ink-soft">
-                  <li><NuxtLink to="/#servicios" class="hover:text-sage-500 transition-colors">{{ content.nav.servicios }}</NuxtLink></li>
-                  <li><NuxtLink to="/#doctores" class="hover:text-sage-500 transition-colors">{{ content.nav.equipo }}</NuxtLink></li>
+                  <li><NuxtLink to="/servicios" class="hover:text-sage-500 transition-colors">{{ content.nav.servicios }}</NuxtLink></li>
+                  <li><NuxtLink to="/equipo" class="hover:text-sage-500 transition-colors">{{ content.nav.equipo }}</NuxtLink></li>
+                  <li><NuxtLink to="/contacto" class="hover:text-sage-500 transition-colors">{{ content.nav.contacto }}</NuxtLink></li>
                   <li><NuxtLink to="/agendar" class="hover:text-sage-500 transition-colors">{{ content.nav.ctaLabel }}</NuxtLink></li>
                 </ul>
               </div>

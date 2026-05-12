@@ -71,7 +71,8 @@ const dateStrip = computed(() => {
 
 const groupedSlots = computed(() => {
   const groups = { morning: [] as Slot[], afternoon: [] as Slot[], evening: [] as Slot[] }
-  for (const s of slots.value) {
+  const list = Array.isArray(slots.value) ? slots.value : []
+  for (const s of list) {
     const h = parseInt(s.start.slice(0, 2), 10)
     if (h < 12) groups.morning.push(s)
     else if (h < 18) groups.afternoon.push(s)
@@ -94,13 +95,15 @@ async function loadSlots() {
   loadingSlots.value = true
   slots.value = []
   try {
-    slots.value = await apiFetch<Slot[]>('/public/slots/', {
+    const res = await apiFetch<{ slots: Slot[]; date: string } | Slot[]>('/public/slots/', {
       params: {
         doctor: booking.doctor.id,
         service: booking.service.id,
         date: booking.date
       }
     })
+    const list = Array.isArray(res) ? res : (res?.slots ?? [])
+    slots.value = Array.isArray(list) ? list : []
   }
   finally { loadingSlots.value = false }
 }
