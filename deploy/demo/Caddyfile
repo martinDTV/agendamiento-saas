@@ -1,0 +1,21 @@
+{
+	email {$ACME_EMAIL}
+}
+
+# Wildcard demo domain: every <clinic>.demo-agendamiento.nexosoftdev.com plus the
+# apex demo host resolve here. TLS for the wildcard is issued via name.com DNS-01.
+*.{$DEMO_DOMAIN}, {$DEMO_DOMAIN} {
+	tls {
+		dns namedotcom {
+			user {$NAMECOM_USER}
+			token {$NAMECOM_TOKEN}
+		}
+	}
+
+	# Django API + admin + static/media go to the backend.
+	@backend path /rest/* /admin/* /static/* /media/*
+	reverse_proxy @backend backend:8000
+
+	# Everything else is the Nuxt patient booking app (SSR).
+	reverse_proxy frontend:3000
+}

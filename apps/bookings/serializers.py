@@ -59,19 +59,26 @@ class AppointmentCreateSerializer(serializers.ModelSerializer):
 class AppointmentSerializer(serializers.ModelSerializer):
     doctor_name = serializers.SerializerMethodField()
     service_name = serializers.CharField(source='service.name', read_only=True)
+    tenant_slug = serializers.CharField(source='tenant.slug', read_only=True)
+    tenant_name = serializers.CharField(source='tenant.name', read_only=True)
 
     class Meta:
         model = Appointment
         fields = [
             'id', 'doctor', 'doctor_name', 'service', 'service_name',
-            'patient_name', 'patient_email', 'patient_phone',
+            'tenant_slug', 'tenant_name',
+            'patient', 'patient_name', 'patient_email', 'patient_phone',
             'date', 'start_time', 'end_time',
             'status', 'notes',
             'clinical_notes', 'weight_kg', 'height_cm', 'blood_pressure',
             'heart_rate', 'temperature_c', 'oxygen_sat',
             'created_at', 'updated_at',
         ]
-        read_only_fields = ['id', 'doctor_name', 'service_name', 'end_time', 'created_at', 'updated_at']
+        read_only_fields = [
+            'id', 'doctor_name', 'service_name',
+            'tenant_slug', 'tenant_name',
+            'end_time', 'created_at', 'updated_at',
+        ]
 
     def get_doctor_name(self, obj):
         return str(obj.doctor)

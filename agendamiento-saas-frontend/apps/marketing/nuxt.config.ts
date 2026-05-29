@@ -5,6 +5,17 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  colorMode: {
+    preference: 'light',
+    fallback: 'light'
+  },
+
+  ui: {
+    theme: {
+      colors: ['primary', 'secondary', 'success', 'info', 'warning', 'error', 'navy', 'violet']
+    }
+  },
+
   routeRules: {
     '/': { prerender: true }
   },

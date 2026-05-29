@@ -1,0 +1,81 @@
+{% extends "email/_base.html" %}
+
+{% block title %}Activa tu cuenta — NexoSoftDev{% endblock %}
+
+{% block preheader %}
+Activa tu cuenta en NexoSoftDev para empezar a agendar tus citas médicas.
+{% endblock %}
+
+{% block hero_eyebrow %}
+<div style="display:inline-block; background:#E0E7FF; color:#3730A3; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:4px 10px; border-radius:999px; margin-bottom:12px;">
+    Bienvenido
+</div>
+{% endblock %}
+
+{% block hero_title %}
+Hola {{ first_name }} 👋
+{% endblock %}
+
+{% block hero_subtitle %}
+<p style="margin:8px 0 0; font-size:15px; color:#475569; line-height:1.6;">
+    Gracias por crear tu cuenta. Solo falta un paso para empezar a agendar
+    tus citas médicas.
+</p>
+{% endblock %}
+
+{% block content %}
+<p style="margin:0 0 8px; font-size:14px; color:#475569; line-height:1.6;">
+    Haz click en el botón para activar tu cuenta. Funciona desde cualquier
+    navegador o dispositivo.
+</p>
+{% endblock %}
+
+{% block cta %}
+<tr>
+    <td style="padding:8px 32px 12px;" align="center">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td align="center" bgcolor="#15263F" style="border-radius:12px;">
+                    <a href="{{ web_link }}" style="display:inline-block; padding:14px 36px; color:#FFFFFF; text-decoration:none; font-size:16px; font-weight:600; border-radius:12px;">
+                        Activar mi cuenta
+                    </a>
+                </td>
+            </tr>
+        </table>
+    </td>
+</tr>
+<tr>
+    <td align="center" style="padding:0 32px 12px;">
+        <p style="margin:0; font-size:12px; color:#94A3B8;">
+            O copia y pega este enlace en tu navegador:
+        </p>
+        <p style="margin:4px 0 0; font-size:11px; color:#475569; word-break:break-all;">
+            <a href="{{ web_link }}" style="color:#475569; text-decoration:underline;">{{ web_link }}</a>
+        </p>
+    </td>
+</tr>
+{% endblock %}
+
+{% block secondary %}
+<tr>
+    <td style="padding:0 32px 16px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F0F4F9; border-radius:8px;">
+            <tr>
+                <td style="padding:14px 16px;">
+                    <div style="font-size:12px; color:#64748B; margin-bottom:4px;">
+                        ¿Ya tienes la app instalada en tu celular?
+                    </div>
+                    <a href="{{ deep_link }}" style="color:#15263F; font-size:13px; font-weight:600; text-decoration:none;">
+                        Activar directamente en la app →
+                    </a>
+                </td>
+            </tr>
+        </table>
+    </td>
+</tr>
+{% endblock %}
+
+{% block footer_note %}
+Este enlace expira en 7 días. Si no creaste esta cuenta, puedes ignorar
+este correo sin problema.
+{% endblock %}

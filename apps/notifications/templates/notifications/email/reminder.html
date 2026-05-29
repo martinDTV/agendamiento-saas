@@ -1,0 +1,66 @@
+{% extends "email/_base.html" %}
+
+{% block title %}Recordatorio: tu cita es mañana — {{ appointment.tenant.name }}{% endblock %}
+
+{% block preheader %}
+Mañana {{ date_formatted_short }} a las {{ time_formatted }} con {{ appointment.doctor }}.
+{% endblock %}
+
+{% block hero_eyebrow %}
+<div style="display:inline-block; background:#FEF3C7; color:#92400E; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:4px 10px; border-radius:999px; margin-bottom:12px;">
+    ⏰ Recordatorio
+</div>
+{% endblock %}
+
+{% block hero_title %}
+Tu cita es mañana
+{% endblock %}
+
+{% block hero_subtitle %}
+<p style="margin:8px 0 0; font-size:15px; color:#475569; line-height:1.6;">
+    Hola {{ patient_first_name }} — te recordamos que mañana tienes una cita médica:
+</p>
+{% endblock %}
+
+{% block content %}
+{% include "email/_appointment_card.html" %}
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#EFF6FF; border-left:3px solid #15263F; border-radius:6px; margin-top:16px;">
+    <tr>
+        <td style="padding:14px 16px;">
+            <div style="font-size:13px; font-weight:600; color:#15263F; margin-bottom:4px;">
+                💡 Antes de tu cita
+            </div>
+            <ul style="margin:0; padding-left:18px; font-size:13px; color:#475569; line-height:1.7;">
+                <li>Llega 10 minutos antes para hacer check-in</li>
+                <li>Trae una identificación oficial</li>
+                <li>Si tomas medicamentos, ten la lista a la mano</li>
+            </ul>
+        </td>
+    </tr>
+</table>
+
+<p style="margin:16px 0 0; font-size:14px; color:#475569; line-height:1.6;">
+    Si no puedes asistir, por favor cancela con anticipación para que otra
+    persona pueda usar el horario.
+</p>
+{% endblock %}
+
+{% block secondary %}
+{% if cta_url %}
+<tr>
+    <td align="center" style="padding:0 32px 8px;">
+        <div style="font-size:13px; color:#64748B;">
+            ¿Necesitas cancelar?
+            <a href="{{ cta_url }}" style="color:#15263F; font-weight:600; text-decoration:none;">
+                Ver mis citas →
+            </a>
+        </div>
+    </td>
+</tr>
+{% endif %}
+{% endblock %}
+
+{% block footer_note %}
+Recibiste este correo porque tienes una cita programada en {{ appointment.tenant.name }}.
+{% endblock %}

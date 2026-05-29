@@ -2,12 +2,13 @@ SHELL := /bin/bash
 
 PROJECT_ROOT := $(CURDIR)
 FRONTEND_DIR := $(PROJECT_ROOT)/agendamiento-saas-frontend
+MOBILE_DIR   := $(PROJECT_ROOT)/agendamiento-saas-mobile
 CONDA_ENV    := agendamiento-saas
 
 # Activa el env de conda en cualquier shell no-interactiva
 CONDA_RUN := source "$$(conda info --base)/etc/profile.d/conda.sh" && conda activate $(CONDA_ENV)
 
-.PHONY: help dev backend celery beat marketing public admin platform stop install
+.PHONY: help dev backend celery beat marketing public admin platform mobile stop install
 
 help:
 	@echo "Targets:"
@@ -19,6 +20,7 @@ help:
 	@echo "  make public      Nuxt :3001"
 	@echo "  make admin       Nuxt :3002"
 	@echo "  make platform    Nuxt :3004"
+	@echo "  make mobile      Expo iOS simulador (solo iOS)"
 	@echo "  make install     pnpm install en el monorepo frontend"
 	@echo "  make stop        mata procesos en los puertos 8000/3000/3001/3002/3004"
 
@@ -42,6 +44,9 @@ admin:
 
 platform:
 	cd $(FRONTEND_DIR) && pnpm dev:platform
+
+mobile:
+	cd $(MOBILE_DIR) && npm run ios
 
 install:
 	cd $(FRONTEND_DIR) && pnpm install

@@ -1,0 +1,102 @@
+# Isolated demo stack: Postgres + Django (demo_settings) + Nuxt (public) + Caddy.
+# All services live ONLY in this compose project; the demo Postgres volume is the
+# only persistence and is intentionally small (purge_demo_tenants keeps it tidy).
+#
+# Run from the repo root:
+#   docker compose -f deploy/demo/docker-compose.yml --env-file deploy/demo/.env up -d --build
+name: agendamiento-demo
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-agendamiento_demo}
+      POSTGRES_USER: ${POSTGRES_USER:-demo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    volumes:
+      - demo_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-demo} -d ${POSTGRES_DB:-agendamiento_demo}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: deploy/demo/Dockerfile.backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      DJANGO_SETTINGS_MODULE: core.demo_settings
+      DEBUG: "False"
+      SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY}
+      DEMO_DATABASE_URL: postgresql://${POSTGRES_USER:-demo}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-agendamiento_demo}
+      DEMO_PLATFORM_DOMAIN: ${DEMO_DOMAIN}
+      DEMO_TENANT_TTL_DAYS: ${DEMO_TENANT_TTL_DAYS:-7}
+      ALLOWED_HOSTS: ".${DEMO_DOMAIN},${DEMO_DOMAIN},backend,localhost,127.0.0.1"
+      REDIS_URL: redis://redis:6379/1
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  # Deletes expired demo tenants once a day so the Postgres volume stays small.
+  purge:
+    build:
+      context: ../..
+      dockerfile: deploy/demo/Dockerfile.backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DJANGO_SETTINGS_MODULE: core.demo_settings
+      SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY}
+      DEMO_DATABASE_URL: postgresql://${POSTGRES_USER:-demo}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-agendamiento_demo}
+      DEMO_PLATFORM_DOMAIN: ${DEMO_DOMAIN}
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - "while true; do python manage.py purge_demo_tenants || true; sleep 86400; done"
+
+  frontend:
+    build:
+      context: ../../agendamiento-saas-frontend
+      dockerfile: ../deploy/demo/Dockerfile.frontend
+      args:
+        NUXT_PUBLIC_API_BASE: https://${DEMO_DOMAIN}/rest/v1
+        NUXT_PUBLIC_PLATFORM_DOMAIN: ${DEMO_DOMAIN}
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  caddy:
+    build:
+      context: .
+      dockerfile: Dockerfile.caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DEMO_DOMAIN: ${DEMO_DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL}
+      NAMECOM_USER: ${NAMECOM_USER}
+      NAMECOM_TOKEN: ${NAMECOM_TOKEN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  demo_pgdata:
+  caddy_data:
+  caddy_config:

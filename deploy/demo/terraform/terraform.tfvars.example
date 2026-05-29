@@ -1,0 +1,16 @@
+# Copy to terraform.tfvars (git-ignored) and fill in, or pass via TF_VAR_* env vars.
+
+do_token            = "dop_v1_xxxxxxxx"
+namecom_user        = "your-namecom-username"
+namecom_token       = "your-namecom-api-token"
+ssh_key_fingerprint = "aa:bb:cc:dd:..."   # an SSH key already in your DO account
+
+root_domain    = "nexosoftdev.com"
+demo_subdomain = "demo-agendamiento"
+
+repo_url    = "https://github.com/your-org/agendamiento-saas.git"
+repo_branch = "master"
+
+django_secret_key = "a-long-random-secret"
+postgres_password = "a-strong-db-password"
+acme_email        = "hola@nexosoftdev.com"

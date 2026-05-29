@@ -1,18 +1,40 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-@theme static {
-  --font-sans: 'Public Sans', sans-serif;
+@import "@fontsource-variable/geist";
+@import "@fontsource-variable/geist-mono";
 
-  --color-green-50: #EFFDF5;
-  --color-green-100: #D9FBE8;
-  --color-green-200: #B3F5D1;
-  --color-green-300: #75EDAE;
-  --color-green-400: #00DC82;
-  --color-green-500: #00C16A;
-  --color-green-600: #00A155;
-  --color-green-700: #007F45;
-  --color-green-800: #016538;
-  --color-green-900: #0A5331;
-  --color-green-950: #052E16;
+@theme static {
+  --font-sans: 'Geist Variable', sans-serif;
+  --font-mono: 'Geist Mono Variable', monospace;
+
+  /* Primario — azul marino NexoSoftDev (#274C77 base, #131D2E tinta) */
+  --color-navy-50: #F1F4F8;
+  --color-navy-100: #E7ECEF;
+  --color-navy-200: #C7D2DF;
+  --color-navy-300: #9DB0C7;
+  --color-navy-400: #5E7BA0;
+  --color-navy-500: #3A5D8A;
+  --color-navy-600: #274C77;
+  --color-navy-700: #1F3C5E;
+  --color-navy-800: #182C46;
+  --color-navy-900: #131D2E;
+  --color-navy-950: #0C1320;
+
+  /* Acento de marca — violeta #A78BFA */
+  --color-violet-50: #F4F1FE;
+  --color-violet-100: #ECE6FD;
+  --color-violet-200: #DBD0FB;
+  --color-violet-300: #C4B2F9;
+  --color-violet-400: #A78BFA;
+  --color-violet-500: #8B68F5;
+  --color-violet-600: #7A4FED;
+  --color-violet-700: #6A3FD9;
+  --color-violet-800: #5834B5;
+  --color-violet-900: #492E94;
+  --color-violet-950: #2D1A64;
+}
+
+:root {
+  --ui-primary: var(--color-navy-600);
 }

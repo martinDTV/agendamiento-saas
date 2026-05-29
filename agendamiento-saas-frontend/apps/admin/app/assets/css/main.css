@@ -32,4 +32,23 @@
   --ui-color-primary-950: var(--color-sage-950);
 
   --ui-primary: var(--color-sage-500);
+
+  /* ── Curvas de easing (las nativas de CSS son débiles) ─────────────────── */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);       /* entradas / feedback */
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);   /* movimiento en pantalla */
+}
+
+/* ── Feedback de presión global para botones ───────────────────────────────
+   Nada en la vida real responde sin acusar el toque. scale(0.97) confirma
+   que la UI escuchó al usuario. Se omite en :disabled. */
+button:not(:disabled):active,
+[role="button"]:not([aria-disabled="true"]):active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:active,
+  [role="button"]:active {
+    transform: none;
+  }
 }

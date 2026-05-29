@@ -1,0 +1,28 @@
+#cloud-config
+package_update: true
+packages:
+  - ca-certificates
+  - curl
+  - git
+
+write_files:
+  - path: /opt/agendamiento-demo/.demo.env
+    permissions: "0600"
+    content: |
+      DEMO_DOMAIN=${demo_domain}
+      DEMO_TENANT_TTL_DAYS=${demo_tenant_ttl_days}
+      SECRET_KEY=${django_secret_key}
+      POSTGRES_DB=agendamiento_demo
+      POSTGRES_USER=demo
+      POSTGRES_PASSWORD=${postgres_password}
+      ACME_EMAIL=${acme_email}
+      NAMECOM_USER=${namecom_user}
+      NAMECOM_TOKEN=${namecom_token}
+
+runcmd:
+  # Install Docker Engine + compose plugin
+  - curl -fsSL https://get.docker.com | sh
+  # Clone the repo and bring up the isolated demo stack
+  - git clone --branch ${repo_branch} ${repo_url} /opt/agendamiento-demo/src
+  - cp /opt/agendamiento-demo/.demo.env /opt/agendamiento-demo/src/deploy/demo/.env
+  - cd /opt/agendamiento-demo/src && docker compose -f deploy/demo/docker-compose.yml --env-file deploy/demo/.env up -d --build

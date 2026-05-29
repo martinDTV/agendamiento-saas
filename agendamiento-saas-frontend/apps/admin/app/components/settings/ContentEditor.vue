@@ -24,7 +24,7 @@ const active = ref('nav')
         v-for="item in items"
         :key="item.key"
         type="button"
-        class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all whitespace-nowrap"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors duration-150 ease-out whitespace-nowrap"
         :class="active === item.key
           ? 'bg-white text-slate-900 shadow-sm'
           : 'text-slate-500 hover:text-slate-700'"
@@ -36,17 +36,29 @@ const active = ref('nav')
     </div>
 
     <!-- Tab content -->
-    <div v-show="active === 'nav'">
-      <NavForm v-model="model.nav" />
-    </div>
-    <div v-show="active === 'homepage'">
-      <HomepageForm v-model="model.homepage" />
-    </div>
-    <div v-show="active === 'booking'">
-      <BookingForm v-model="model.booking" />
-    </div>
-    <div v-show="active === 'footer'">
-      <FooterForm v-model="model.footer" />
-    </div>
+    <Transition name="tab-fade" mode="out-in">
+      <NavForm v-if="active === 'nav'" key="nav" v-model="model.nav" />
+      <HomepageForm v-else-if="active === 'homepage'" key="homepage" v-model="model.homepage" />
+      <BookingForm v-else-if="active === 'booking'" key="booking" v-model="model.booking" />
+      <FooterForm v-else-if="active === 'footer'" key="footer" v-model="model.footer" />
+    </Transition>
   </div>
 </template>
+
+<style scoped>
+/* Fade corto al cambiar de pestaña — ease-out porque es una entrada. */
+.tab-fade-enter-active,
+.tab-fade-leave-active {
+  transition: opacity 150ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+.tab-fade-enter-from,
+.tab-fade-leave-to {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tab-fade-enter-active,
+  .tab-fade-leave-active {
+    transition: none;
+  }
+}
+</style>

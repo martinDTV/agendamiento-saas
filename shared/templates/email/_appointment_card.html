@@ -1,0 +1,94 @@
+{% comment %}
+  Card reutilizable con los datos de una cita. Recibe contexto:
+    - appointment: instancia de Appointment con .doctor, .service, .tenant
+    - date_formatted: ej. "Viernes 29 de mayo, 2026"
+    - time_formatted: ej. "12:00 p. m."
+    - branch_name (opcional): nombre de la sucursal
+    - branch_address (opcional): dirección de la sucursal
+{% endcomment %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:12px; margin-bottom:16px;">
+    <tr>
+        <td style="padding:18px 20px;">
+
+            {# Fecha y hora — destacadas #}
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                    <td style="padding-bottom:14px; border-bottom:1px solid #E2E8F0;">
+                        <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:#64748B; margin-bottom:4px;">
+                            Fecha y hora
+                        </div>
+                        <div style="font-size:17px; font-weight:600; color:#15263F;">
+                            {{ date_formatted }}
+                        </div>
+                        <div style="font-size:15px; color:#15263F;">
+                            {{ time_formatted }}
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            {# Doctor #}
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;">
+                <tr>
+                    <td>
+                        <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:#64748B; margin-bottom:4px;">
+                            Doctor
+                        </div>
+                        <div style="font-size:15px; color:#15263F;">
+                            {{ appointment.doctor }}
+                        </div>
+                        {% if appointment.doctor.specialty %}
+                        <div style="font-size:13px; color:#64748B;">
+                            {{ appointment.doctor.specialty }}
+                        </div>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+
+            {# Servicio #}
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;">
+                <tr>
+                    <td>
+                        <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:#64748B; margin-bottom:4px;">
+                            Servicio
+                        </div>
+                        <div style="font-size:15px; color:#15263F;">
+                            {{ appointment.service.name }}
+                        </div>
+                        {% if appointment.service.duration %}
+                        <div style="font-size:13px; color:#64748B;">
+                            Duración: {{ appointment.service.duration }} minutos
+                        </div>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+
+            {# Clínica + sucursal #}
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;">
+                <tr>
+                    <td>
+                        <div style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px; color:#64748B; margin-bottom:4px;">
+                            Clínica
+                        </div>
+                        <div style="font-size:15px; color:#15263F;">
+                            {{ appointment.tenant.name }}
+                        </div>
+                        {% if branch_name %}
+                        <div style="font-size:13px; color:#64748B; margin-top:2px;">
+                            {{ branch_name }}
+                        </div>
+                        {% endif %}
+                        {% if branch_address %}
+                        <div style="font-size:13px; color:#64748B;">
+                            {{ branch_address }}
+                        </div>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+
+        </td>
+    </tr>
+</table>

@@ -1,0 +1,131 @@
+<!--
+  Template base para correos transaccionales del SaaS.
+
+  Compatibilidad con clientes de email malos (Outlook, Gmail mobile,
+  Apple Mail) usa tablas + estilos inline. NO usar:
+    - CSS moderno (flexbox, grid)
+    - <style> bloque (Outlook lo ignora)
+    - SVG (Outlook lo rompe)
+    - imágenes externas pesadas (Gmail las bloquea al inicio)
+
+  Bloques disponibles para extender:
+    - title          → <title> del HTML
+    - preheader      → texto del preview en bandeja (gris pequeño arriba)
+    - hero_eyebrow   → texto pequeño sobre el título (ej. "Cita confirmada")
+    - hero_title     → título grande del correo
+    - hero_subtitle  → subtítulo opcional debajo del título
+    - content        → cuerpo del correo (cards, tablas, párrafos)
+    - cta_url        → URL del botón principal
+    - cta_label      → texto del botón principal
+    - secondary      → bloque opcional debajo del botón (link secundario)
+    - footer_note    → línea pequeña antes del copyright
+
+  Colores de marca NexoSoftDev:
+    - #15263F navy (header, botones)
+    - #0F1F3D navy oscuro (hover, opcional)
+    - #F0F4F9 background gris muy claro
+    - #475569 slate 600 (texto secundario)
+    - #94A3B8 slate 400 (texto terciario)
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="x-apple-disable-message-reformatting">
+    <title>{% block title %}NexoSoftDev{% endblock %}</title>
+</head>
+<body style="margin:0; padding:0; background:#F0F4F9; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; color:#15263F; -webkit-text-size-adjust:100%;">
+
+    {# Preheader: lo que sale en el preview de la bandeja, oculto en el cuerpo #}
+    <div style="display:none; max-height:0; overflow:hidden; mso-hide:all;">
+        {% block preheader %}{% endblock %}
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#F0F4F9; padding:24px 12px;">
+        <tr>
+            <td align="center">
+
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px; background:#FFFFFF; border-radius:16px; overflow:hidden; box-shadow:0 4px 16px rgba(21,38,63,0.06);">
+
+                    {# ── Header con marca ──────────────────────────────── #}
+                    <tr>
+                        <td align="center" style="background:#15263F; padding:28px 24px;">
+                            <div style="color:#FFFFFF; font-size:22px; font-weight:700; letter-spacing:0.3px;">
+                                NexoSoftDev
+                            </div>
+                            <div style="color:#B3C4D9; font-size:12px; margin-top:4px;">
+                                Agendamiento médico
+                            </div>
+                        </td>
+                    </tr>
+
+                    {# ── Hero (eyebrow + título + subtítulo) ───────────── #}
+                    <tr>
+                        <td style="padding:36px 32px 8px;">
+                            {% block hero_eyebrow %}{% endblock %}
+                            <h1 style="margin:0 0 8px; font-size:22px; font-weight:700; color:#15263F; line-height:1.3;">
+                                {% block hero_title %}{% endblock %}
+                            </h1>
+                            {% block hero_subtitle %}{% endblock %}
+                        </td>
+                    </tr>
+
+                    {# ── Contenido principal (cards/párrafos) ──────────── #}
+                    <tr>
+                        <td style="padding:8px 32px 12px;">
+                            {% block content %}{% endblock %}
+                        </td>
+                    </tr>
+
+                    {# ── CTA (botón) — solo si el child define cta_url ── #}
+                    {% block cta %}
+                    {% if cta_url and cta_label %}
+                    <tr>
+                        <td style="padding:8px 32px 24px;" align="center">
+                            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                                <tr>
+                                    <td align="center" bgcolor="#15263F" style="border-radius:12px;">
+                                        <a href="{{ cta_url }}" style="display:inline-block; padding:14px 36px; color:#FFFFFF; text-decoration:none; font-size:16px; font-weight:600; border-radius:12px;">
+                                            {{ cta_label }}
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endblock %}
+
+                    {# ── Bloque secundario (link, info adicional) ──────── #}
+                    {% block secondary %}{% endblock %}
+
+                    {# ── Línea divisora antes del footer ────────────────── #}
+                    <tr>
+                        <td style="padding:0 32px;">
+                            <div style="border-top:1px solid #E2E8F0; height:1px; line-height:1px; font-size:0;">&nbsp;</div>
+                        </td>
+                    </tr>
+
+                    {# ── Nota legal pequeña ─────────────────────────────── #}
+                    <tr>
+                        <td style="padding:20px 32px 8px; font-size:12px; color:#94A3B8; line-height:1.5;">
+                            {% block footer_note %}
+                            Si no esperabas este correo, puedes ignorarlo sin problema.
+                            {% endblock %}
+                        </td>
+                    </tr>
+
+                    {# ── Copyright footer ───────────────────────────────── #}
+                    <tr>
+                        <td align="center" style="background:#F0F4F9; padding:18px 24px; font-size:12px; color:#94A3B8;">
+                            © {% now "Y" %} NexoSoftDev — Agendamiento médico
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

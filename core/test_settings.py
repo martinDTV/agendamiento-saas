@@ -7,4 +7,7 @@ REST_FRAMEWORK['DEFAULT_THROTTLE_RATES'] = {  # type: ignore[index]  # noqa: F40
     'user': '10000/hour',
     'booking_create': '10000/hour',
     'slots': '10000/hour',
+    'postal_code': '10000/hour',
+    'geocode': '10000/hour',
+    'anonymous_review': '10000/hour',
 }

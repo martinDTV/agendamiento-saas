@@ -61,6 +61,9 @@ INSTALLED_APPS = [
     'apps.meetings',
     'apps.platform',
     'apps.support',
+    'apps.patients',
+    'apps.places',
+    'apps.reviews',
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -98,7 +101,10 @@ ROOT_URLCONF = 'core.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        # shared/templates/ contiene componentes reusables entre apps
+        # (ej. email/_base.html para correos transaccionales). NO es una
+        # Django app, por eso se carga explícitamente acá.
+        'DIRS': [BASE_DIR / 'shared' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -258,6 +264,25 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@miapp.com')
+
+# URL pública del backend, usada en correos transaccionales (links de activación
+# de pacientes, recuperación de contraseña, etc.) que deben funcionar desde
+# CUALQUIER dispositivo — no solo desde el celular donde se instaló la app.
+#
+# En dev local, configura tu IP de LAN en .env para que el iPhone pueda
+# alcanzar el servidor:
+#   SITE_URL=http://192.168.0.11:8000
+#
+# Si no se define, el link de activación apuntará a localhost:8000 (solo
+# funcionará abriendo el correo en la misma Mac que corre el backend).
+SITE_URL = os.getenv('SITE_URL', 'http://localhost:8000')
+
+# ── Google Places API ────────────────────────────────────────────────────────
+# Solo Places API (New) está habilitada para esta key. Endpoints disponibles:
+#   POST https://places.googleapis.com/v1/places:searchText
+#   GET  https://places.googleapis.com/v1/places/{place_id}
+# Usada por apps/places/views.py para autocomplete de direcciones por CP.
+GOOGLE_PLACES_API_KEY = os.getenv('GOOGLE_PLACES_API_KEY', '')
 
 # Plantilla del URL del panel admin por tenant — usada por el email de activación.
 # {slug} se reemplaza con el slug del tenant. En prod cambiar a 'https://admin.{slug}.miapp.com'.

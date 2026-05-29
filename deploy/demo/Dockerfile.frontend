@@ -1,0 +1,35 @@
+# Nuxt demo frontend — the patient booking app (apps/public) built for the demo env.
+# Build context is the frontend workspace root:
+#   docker build -f ../deploy/demo/Dockerfile.frontend agendamiento-saas-frontend
+FROM node:22-slim AS build
+
+ENV PNPM_HOME=/pnpm \
+    PATH=/pnpm:$PATH
+RUN corepack enable
+
+WORKDIR /app
+
+# Build-time public config (baked into the SSR server bundle).
+ARG NUXT_PUBLIC_API_BASE
+ARG NUXT_PUBLIC_PLATFORM_DOMAIN
+ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE \
+    NUXT_PUBLIC_PLATFORM_DOMAIN=$NUXT_PUBLIC_PLATFORM_DOMAIN
+
+# Install deps with the workspace lockfile for reproducible builds.
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY apps/public/package.json apps/public/package.json
+COPY packages/shared/package.json packages/shared/package.json
+RUN pnpm install --frozen-lockfile
+
+COPY . .
+RUN pnpm --filter @agendamiento/public build
+
+# ── Runtime: only the Nitro output ─────────────────────────────────────────────
+FROM node:22-slim AS runtime
+ENV NODE_ENV=production \
+    NITRO_HOST=0.0.0.0 \
+    NITRO_PORT=3000
+WORKDIR /app
+COPY --from=build /app/apps/public/.output ./.output
+EXPOSE 3000
+CMD ["node", ".output/server/index.mjs"]

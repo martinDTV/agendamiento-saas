@@ -1,0 +1,16 @@
+Hola {{ reviewer_name }},
+
+Recibimos una reseña sobre {{ doctor_name }}. Antes de publicarla
+queremos confirmar que la enviaste tú.
+
+TU RESEÑA
+---------
+Calificación: {{ rating }}/5 estrellas{% if comment %}
+Comentario:   {{ comment }}{% endif %}
+
+Para publicarla, abre este enlace:
+{{ confirm_url }}
+
+Si no enviaste esta reseña, ignora este correo. El link expira en 7 días.
+
+— NexoSoftDev

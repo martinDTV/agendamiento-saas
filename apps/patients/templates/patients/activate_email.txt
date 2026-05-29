@@ -1,0 +1,15 @@
+Hola {{ first_name }},
+
+Gracias por crear tu cuenta en Agendamiento.
+
+Para activarla, abre el siguiente enlace desde cualquier dispositivo:
+{{ web_link }}
+
+¿Tienes la app instalada? También puedes activar desde la app:
+{{ deep_link }}
+
+Este enlace expira en 7 días.
+
+Si no creaste esta cuenta, ignora este mensaje.
+
+— NexoSoftDev

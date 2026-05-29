@@ -23,15 +23,19 @@ class SlotsView(APIView):
     GET /rest/v1/public/slots/?doctor={id}&service={id}&date={YYYY-MM-DD}
 
     Returns available time slots for the given doctor, service, and date.
+
+    Tenant resolution (cross-clínica friendly):
+      1. Si `request.tenant` viene del middleware (Host o X-Tenant-Slug) y el
+         doctor pertenece a ese tenant → se usa.
+      2. Si NO viene tenant → el tenant se deduce del `doctor` enviado. Esto
+         permite que la app móvil llame el endpoint sin saber a qué clínica
+         pertenece el doctor.
+      3. Si hay tenant pero el doctor pertenece a OTRO tenant → 404 (mismatch).
     """
     permission_classes = [AllowAny]
     throttle_classes = [SlotsThrottle]
 
     def get(self, request):
-        tenant = getattr(request, 'tenant', None)
-        if not tenant:
-            return Response({'error': 'Tenant requerido.'}, status=status.HTTP_400_BAD_REQUEST)
-
         doctor_id = request.query_params.get('doctor')
         service_id = request.query_params.get('service')
         date_str = request.query_params.get('date')
@@ -50,11 +54,35 @@ class SlotsView(APIView):
         if target_date < date_type.today():
             return Response({'slots': []})
 
+        # Resolvemos doctor primero usando el manager unscoped — el tenant
+        # se deduce de ahí si hace falta. Validamos que tanto doctor como
+        # service estén activos y pertenezcan al mismo tenant.
         try:
-            doctor = Doctor.objects.for_tenant(tenant).get(pk=doctor_id, is_active=True)
-            service = Service.objects.for_tenant(tenant).get(pk=service_id, is_active=True)
-        except (Doctor.DoesNotExist, Service.DoesNotExist):
-            return Response({'error': 'Doctor o servicio no válido.'}, status=status.HTTP_404_NOT_FOUND)
+            doctor = (
+                Doctor._all
+                .select_related('tenant')
+                .get(pk=doctor_id, is_active=True, tenant__is_active=True)
+            )
+        except (Doctor.DoesNotExist, ValueError):
+            return Response({'error': 'Doctor no válido.'}, status=status.HTTP_404_NOT_FOUND)
+
+        tenant_from_header = getattr(request, 'tenant', None)
+        if tenant_from_header and tenant_from_header.id != doctor.tenant_id:
+            # Mismatch: el header dice una clínica, el doctor pertenece a otra.
+            # Tratamos como "doctor no válido en este contexto" — seguridad.
+            return Response({'error': 'Doctor no válido.'}, status=status.HTTP_404_NOT_FOUND)
+
+        tenant = doctor.tenant
+
+        try:
+            service = Service._all.get(
+                pk=service_id, is_active=True, tenant=tenant,
+            )
+        except (Service.DoesNotExist, ValueError):
+            return Response(
+                {'error': 'Servicio no válido para este doctor.'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         slots = get_available_slots(doctor, service, target_date)
         return Response({'slots': slots, 'date': date_str})
@@ -64,22 +92,63 @@ class PublicAppointmentCreateView(APIView):
     """
     POST /rest/v1/public/appointments/
 
-    Creates a new appointment. No authentication required.
+    Creates a new appointment.
+
+    No requiere autenticación. PERO: si el request trae JWT válido y el user
+    tiene un Patient asociado, vinculamos automáticamente `appointment.patient`
+    para que aparezca en `/patients/me/appointments/`.
+
+    Si el paciente está autenticado, también pre-llenamos los campos
+    patient_name/email/phone con sus datos del perfil cuando no vienen en la
+    request (la app móvil los manda igual, pero esto previene mismatches).
     """
     permission_classes = [AllowAny]
     throttle_classes = [BookingCreateThrottle]
 
     def post(self, request):
-        tenant = getattr(request, 'tenant', None)
-        if not tenant:
-            return Response({'error': 'Tenant requerido.'}, status=status.HTTP_400_BAD_REQUEST)
+        # Tenant resolution cross-clínica (mismo patrón que SlotsView):
+        # si no viene del middleware, lo deducimos del doctor enviado.
+        doctor_id = request.data.get('doctor')
+        if not doctor_id:
+            return Response(
+                {'doctor': ['Este campo es requerido.']},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            doctor = (
+                Doctor._all
+                .select_related('tenant')
+                .get(pk=doctor_id, is_active=True, tenant__is_active=True)
+            )
+        except (Doctor.DoesNotExist, ValueError, TypeError):
+            return Response({'doctor': ['Doctor no válido.']}, status=status.HTTP_400_BAD_REQUEST)
+
+        tenant_from_header = getattr(request, 'tenant', None)
+        if tenant_from_header and tenant_from_header.id != doctor.tenant_id:
+            return Response({'doctor': ['Doctor no válido.']}, status=status.HTTP_400_BAD_REQUEST)
+
+        tenant = doctor.tenant
+        # `request.tenant` lo necesita el AppointmentCreateSerializer.validate()
+        # para verificar que doctor/service son del mismo tenant. Lo seteamos
+        # explícitamente para que el contexto funcione.
+        request.tenant = tenant
+
+        # Si el request está autenticado, intentamos resolver el Patient.
+        # Importamos aquí para evitar import circular bookings ↔ patients.
+        patient = None
+        if request.user and request.user.is_authenticated:
+            from apps.patients.models import Patient
+            patient = Patient.objects.filter(user=request.user).first()
 
         serializer = AppointmentCreateSerializer(
             data=request.data,
             context={'request': request},
         )
         serializer.is_valid(raise_exception=True)
-        appointment = serializer.save(tenant=tenant)
+        save_kwargs = {'tenant': tenant}
+        if patient is not None:
+            save_kwargs['patient'] = patient
+        appointment = serializer.save(**save_kwargs)
         from apps.notifications.tasks import task_send_confirmation
         task_send_confirmation.delay(appointment.pk)
         return Response(AppointmentSerializer(appointment).data, status=status.HTTP_201_CREATED)

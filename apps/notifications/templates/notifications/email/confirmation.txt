@@ -1,0 +1,22 @@
+Hola {{ patient_first_name }},
+
+Tu cita médica ha sido agendada exitosamente.
+
+DETALLES DE LA CITA
+--------------------
+Fecha:    {{ date_formatted }}
+Hora:     {{ time_formatted }}
+Doctor:   {{ appointment.doctor }}{% if appointment.doctor.specialty %} — {{ appointment.doctor.specialty }}{% endif %}
+Servicio: {{ appointment.service.name }}{% if appointment.service.duration %} ({{ appointment.service.duration }} min){% endif %}
+Clínica:  {{ appointment.tenant.name }}{% if branch_name %} ({{ branch_name }}){% endif %}{% if branch_address %}
+          {{ branch_address }}{% endif %}
+
+Te recordaremos por correo 24 horas antes de tu cita.
+
+Si necesitas cancelar o reagendar, hazlo desde la app con al menos 24 horas
+de anticipación.
+{% if cta_url %}
+Ver mis citas: {{ cta_url }}
+{% endif %}
+
+— NexoSoftDev

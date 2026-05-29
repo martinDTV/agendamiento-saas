@@ -10,6 +10,27 @@ class Branch(TenantScopedModel):
     name = models.CharField(max_length=150)
     address = models.CharField(max_length=255, blank=True)
     phone = models.CharField(max_length=20, blank=True)
+
+    # Coordenadas geocodificadas (Google Places). Se llenan on-demand cuando
+    # la app móvil pide la ubicación de la clínica. NULL hasta primera vez.
+    #
+    # Usamos FloatField (no PointField) para evitar dependencia de PostGIS.
+    # Para distancia usamos Haversine en Python — suficiente para <100km.
+    # Si en el futuro hay >5k sucursales, migrar a PostGIS + ST_DWithin.
+    address_lat = models.FloatField(
+        null=True, blank=True,
+        help_text='Latitud geocodificada de la dirección.',
+    )
+    address_lng = models.FloatField(
+        null=True, blank=True,
+        help_text='Longitud geocodificada de la dirección.',
+    )
+    address_geocoded_at = models.DateTimeField(
+        null=True, blank=True,
+        help_text='Cuándo se geocodificó por última vez. Se re-geocodifica '
+                  'si la dirección cambia.',
+    )
+
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -1,0 +1,53 @@
+{% extends "email/_base.html" %}
+
+{% block title %}Cita confirmada — {{ appointment.tenant.name }}{% endblock %}
+
+{% block preheader %}
+Tu cita con {{ appointment.doctor }} está agendada para el {{ date_formatted }} a las {{ time_formatted }}.
+{% endblock %}
+
+{% block hero_eyebrow %}
+<div style="display:inline-block; background:#D1FAE5; color:#047857; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; padding:4px 10px; border-radius:999px; margin-bottom:12px;">
+    ✓ Cita confirmada
+</div>
+{% endblock %}
+
+{% block hero_title %}
+Hola {{ patient_first_name }} 👋
+{% endblock %}
+
+{% block hero_subtitle %}
+<p style="margin:8px 0 0; font-size:15px; color:#475569; line-height:1.6;">
+    Tu cita médica ha sido agendada exitosamente. Aquí están los detalles:
+</p>
+{% endblock %}
+
+{% block content %}
+{% include "email/_appointment_card.html" %}
+
+<p style="margin:16px 0 0; font-size:14px; color:#475569; line-height:1.6;">
+    Te recordaremos por correo 24 horas antes de tu cita.
+    Si necesitas <strong style="color:#15263F;">cancelar o reagendar</strong>,
+    hazlo desde la app con al menos 24 horas de anticipación.
+</p>
+{% endblock %}
+
+{% block secondary %}
+{% if cta_url %}
+<tr>
+    <td align="center" style="padding:0 32px 8px;">
+        <div style="font-size:13px; color:#64748B;">
+            ¿Necesitas hacer cambios?
+            <a href="{{ cta_url }}" style="color:#15263F; font-weight:600; text-decoration:none;">
+                Ver mis citas →
+            </a>
+        </div>
+    </td>
+</tr>
+{% endif %}
+{% endblock %}
+
+{% block footer_note %}
+Recibiste este correo porque agendaste una cita en {{ appointment.tenant.name }}.
+Política de cancelación: 24 horas antes de la cita sin costo.
+{% endblock %}

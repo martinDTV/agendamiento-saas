@@ -1,5 +1,9 @@
+import re
+
 from django.conf import settings
+from django.db import transaction
 from django.http import Http404
+from django.utils import timezone
 
 from apps.tenants.exceptions import TenantNotFoundError, TenantInactiveError
 
@@ -99,5 +103,75 @@ class TenantMiddleware:
 
         if not tenant.is_active:
             raise TenantInactiveError(slug)
+
+        return tenant
+
+
+# Slugs that must never become a demo clinic (system / reserved subdomains).
+DEMO_RESERVED_SLUGS = {
+    'admin', 'www', 'api', 'app', 'demo', 'demo-agendamiento',
+    'static', 'media', 'assets', 'mail', 'smtp', 'ftp', 'ns', 'ns1', 'ns2',
+}
+
+_SLUG_RE = re.compile(r'^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$')
+
+
+class DemoTenantMiddleware(TenantMiddleware):
+    """
+    Demo variant of TenantMiddleware.
+
+    When DEMO_MODE is on and the host resolves to a slug that does not yet exist,
+    the tenant is created on the fly, seeded with sample data, and given an
+    expiry timestamp (purge_demo_tenants removes it later). This powers
+    `<clinic>.demo-agendamiento.nexosoftdev.com` self-service demos.
+
+    Only active under core.demo_settings (DEMO_MODE=True). With DEMO_MODE off it
+    behaves exactly like the base middleware, so it is safe everywhere.
+    """
+
+    def __init__(self, get_response):
+        super().__init__(get_response)
+        self.demo_mode = getattr(settings, 'DEMO_MODE', False)
+        self.demo_ttl_days = getattr(settings, 'DEMO_TENANT_TTL_DAYS', 7)
+
+    def _get_active_tenant(self, slug):
+        from apps.tenants.models import Tenant
+
+        try:
+            return super()._get_active_tenant(slug)
+        except TenantNotFoundError:
+            if not self.demo_mode or not self._is_valid_demo_slug(slug):
+                raise
+            return self._create_demo_tenant(slug)
+
+    @staticmethod
+    def _is_valid_demo_slug(slug):
+        return slug not in DEMO_RESERVED_SLUGS and bool(_SLUG_RE.match(slug))
+
+    def _create_demo_tenant(self, slug):
+        from apps.tenants.demo_seed import seed_tenant
+        from apps.tenants.models import Tenant
+
+        name = slug.replace('-', ' ').title()
+        expires_at = timezone.now() + timezone.timedelta(days=self.demo_ttl_days)
+
+        with transaction.atomic():
+            tenant, created = Tenant.objects.get_or_create(
+                slug=slug,
+                defaults={
+                    'name': name,
+                    'type': 'clinic',
+                    'plan': 'demo',
+                    'is_active': True,
+                    'settings': {
+                        'demo': True,
+                        'demo_expires_at': expires_at.isoformat(),
+                        'timezone': 'America/Mexico_City',
+                        'locale': 'es-MX',
+                    },
+                },
+            )
+            if created:
+                seed_tenant(tenant)
 
         return tenant

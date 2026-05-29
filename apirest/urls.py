@@ -82,6 +82,18 @@ class TenantAuthTokenViewset(AuthTokenViewset):
                     status=status.HTTP_403_FORBIDDEN,
                 )
             response.data['must_change_password'] = must_change_password
+            # Inyectar datos del user para que el cliente móvil pueda saludar
+            # con el nombre y pre-llenar el booking. La lib django-users-auth
+            # solo devuelve user_id/uuid/is_superuser; aquí enriquecemos.
+            if email:
+                user = User.objects.filter(email__iexact=email).first()
+                if user:
+                    response.data['user'] = {
+                        'id': user.id,
+                        'email': user.email,
+                        'first_name': user.first_name or '',
+                        'last_name': user.last_name or '',
+                    }
         return response
 
 
@@ -102,6 +114,21 @@ urlpatterns = [
     path('catalog/', include('apps.catalog.urls', namespace='catalog')),
     path('bookings/', include('apps.bookings.urls', namespace='bookings')),
     path('public/', include('apps.bookings.public_urls')),
+    # ── Pacientes ──────────────────────────────────────────────────────────
+    # /public/patients/...  → register, activate (sin auth)
+    # /patients/me/...      → perfil, mis citas (con auth)
+    path('public/patients/', include('apps.patients.public_urls')),
+    path('patients/', include('apps.patients.urls', namespace='patients')),
+    # ── Discover (cross-clínica, sin tenant) ───────────────────────────────
+    # Endpoints que la app móvil consume sin saber a qué clínica pertenece.
+    # Devuelven listas globales de doctores/clínicas con tenant_slug incluido.
+    path('public/discover/', include('apps.catalog.discover_urls')),
+    # ── Places (autocomplete de direcciones por CP) ────────────────────────
+    # Usa zippopotam.us + Google Places API New (en cascada).
+    path('public/places/', include('apps.places.urls')),
+    # ── Reviews de doctores ────────────────────────────────────────────────
+    path('public/reviews/', include('apps.reviews.public_urls')),
+    path('reviews/', include('apps.reviews.urls', namespace='reviews')),
     path('reports/', include('apps.reports.urls')),
     path('public/ai/', include('apps.ai.urls')),
     path('meetings/', include('apps.meetings.urls', namespace='meetings')),

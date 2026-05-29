@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, date as date_type
+from typing import Optional
 
 from apps.catalog.models import Doctor, Service, Schedule
 from .models import Appointment, AppointmentStatus
@@ -58,3 +59,39 @@ def get_available_slots(
         return False
 
     return [s for s in slots if not overlaps(s)]
+
+
+def get_next_available_slot(
+    doctor: Doctor,
+    days_ahead: int = 14,
+) -> Optional[dict]:
+    """
+    Devuelve el primer slot libre del doctor en los próximos `days_ahead` días.
+
+    Útil para mostrar "Próxima disponibilidad" en la card del doctor sin que
+    el paciente tenga que abrir el wizard de reserva.
+
+    Usa el primer service activo del doctor para calcular la duración del
+    slot (todos sus servicios suelen tener duración similar). Si el doctor
+    no tiene servicios o no tiene schedule, devuelve None.
+
+    Returns:
+      {'date': 'YYYY-MM-DD', 'start': 'HH:MM'} o None
+    """
+    # Tomamos el primer servicio activo del doctor para usar su duración.
+    # Esto es una aproximación — para la card es suficiente.
+    service = (
+        Service.objects.for_tenant(doctor.tenant)
+        .filter(doctors=doctor, is_active=True)
+        .first()
+    )
+    if not service:
+        return None
+
+    today = date_type.today()
+    for offset in range(days_ahead):
+        target = today + timedelta(days=offset)
+        slots = get_available_slots(doctor, service, target)
+        if slots:
+            return {'date': target.isoformat(), 'start': slots[0]['start']}
+    return None

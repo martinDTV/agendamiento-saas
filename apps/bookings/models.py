@@ -23,6 +23,19 @@ class Appointment(TenantScopedModel):
         on_delete=models.PROTECT,
         related_name='appointments',
     )
+    # ── Paciente ────────────────────────────────────────────────────────────
+    # `patient` (FK opcional a apps.patients.Patient) se llena cuando el paciente
+    # reserva CON cuenta. Los campos `patient_name/email/phone` son fallback
+    # cuando reserva SIN cuenta (booking público anónimo). Mantenemos ambos:
+    # eventualmente, cuando todos los pacientes tengan cuenta, una data
+    # migration borrará los strings y dejará solo el FK.
+    patient = models.ForeignKey(
+        'patients.Patient',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='appointments',
+    )
     patient_name = models.CharField(max_length=150)
     patient_email = models.EmailField()
     patient_phone = models.CharField(max_length=20, blank=True)

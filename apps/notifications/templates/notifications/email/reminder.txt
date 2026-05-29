@@ -1,0 +1,26 @@
+Hola {{ patient_first_name }},
+
+Te recordamos que MAÑANA tienes una cita médica:
+
+DETALLES DE LA CITA
+--------------------
+Fecha:    {{ date_formatted }}
+Hora:     {{ time_formatted }}
+Doctor:   {{ appointment.doctor }}{% if appointment.doctor.specialty %} — {{ appointment.doctor.specialty }}{% endif %}
+Servicio: {{ appointment.service.name }}
+Clínica:  {{ appointment.tenant.name }}{% if branch_name %} ({{ branch_name }}){% endif %}{% if branch_address %}
+          {{ branch_address }}{% endif %}
+
+ANTES DE TU CITA
+-----------------
+- Llega 10 minutos antes para hacer check-in
+- Trae una identificación oficial
+- Si tomas medicamentos, ten la lista a la mano
+
+Si no puedes asistir, por favor cancela con anticipación para que otra
+persona pueda usar el horario.
+{% if cta_url %}
+Ver mis citas: {{ cta_url }}
+{% endif %}
+
+— NexoSoftDev
