@@ -12,6 +12,21 @@
 	reverse_proxy marketing:3000
 }
 
+# Admin panel host: admin-<clinic>.demo-agendamiento.nexosoftdev.com
+# More specific than the wildcard below, so Caddy routes it here first.
+admin-*.{$DEMO_DOMAIN} {
+	tls {
+		dns digitalocean {$DO_AUTH_TOKEN}
+	}
+
+	# API + static/media still go to the backend.
+	@backend path /rest/* /dadmin/* /static/* /media/*
+	reverse_proxy @backend backend:8000
+
+	# Everything else is the Nuxt admin app (SSR).
+	reverse_proxy admin:3000
+}
+
 # Wildcard demo domain: every <clinic>.demo-agendamiento.nexosoftdev.com plus the
 # apex demo host resolve here. TLS for the wildcard is issued via DigitalOcean DNS-01.
 *.{$DEMO_DOMAIN}, {$DEMO_DOMAIN} {
@@ -22,10 +37,6 @@
 	# Django API + Django-admin + static/media go to the backend.
 	@backend path /rest/* /dadmin/* /static/* /media/*
 	reverse_proxy @backend backend:8000
-
-	# /panel* → the Nuxt admin panel (served under baseURL /panel/).
-	@panel path /panel /panel/*
-	reverse_proxy @panel admin:3000
 
 	# Everything else is the Nuxt patient booking app (SSR).
 	reverse_proxy frontend:3000

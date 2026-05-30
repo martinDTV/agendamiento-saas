@@ -40,7 +40,9 @@ function extractAdminSlug(host: string, platformDomain: string): string | null {
   // admin.{slug}.miapp.com → parts = ['admin', '{slug}']
   if (parts[0] === 'admin' && parts.length >= 2) return parts[1] ?? null
 
-  // Demo: {slug}.demo-agendamiento.nexosoftdev.com — the admin is served under
-  // /panel on the same clinic subdomain, so the slug is the first label.
-  return parts[0] ?? null
+  // Demo: admin-{slug}.demo-agendamiento.nexosoftdev.com → strip the admin- prefix.
+  const first = parts[0] ?? ''
+  if (first.startsWith('admin-')) return first.slice('admin-'.length) || null
+
+  return first || null
 }

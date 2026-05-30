@@ -3,12 +3,6 @@ export default defineNuxtConfig({
 
   devtools: { enabled: true },
 
-  // Served under a subpath in the demo (clinica.demo-.../panel). Defaults to '/'
-  // for normal subdomain deployments.
-  app: {
-    baseURL: process.env.NUXT_APP_BASE_URL || '/'
-  },
-
   components: [{ path: '~/components', pathPrefix: false }],
 
   css: ['~/assets/css/main.css'],

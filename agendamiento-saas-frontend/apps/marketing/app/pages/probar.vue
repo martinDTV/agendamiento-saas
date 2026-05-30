@@ -25,7 +25,7 @@ const slug = computed(() => {
 
 const ready = computed(() => slug.value.length >= 2)
 const patientUrl = computed(() => `https://${slug.value}.${DEMO_DOMAIN}`)
-const panelUrl = computed(() => `https://${slug.value}.${DEMO_DOMAIN}/panel`)
+const panelUrl = computed(() => `https://admin-${slug.value}.${DEMO_DOMAIN}`)
 const adminEmail = computed(() => `admin@${slug.value}.demo.local`)
 
 const created = ref(false)
