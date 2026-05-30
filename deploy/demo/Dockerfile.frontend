@@ -26,6 +26,8 @@ COPY . .
 # production build's esbuild resolves tsconfig.app.json from the WORKSPACE ROOT
 # (/app/.nuxt). Copy the generated .nuxt to the root so the build finds it.
 WORKDIR /app/apps/public
+# Give Node enough heap for the SSR build, sized for a 2GB droplet + swap.
+ENV NODE_OPTIONS=--max-old-space-size=1536
 RUN pnpm exec nuxt prepare \
     && cp -r .nuxt /app/.nuxt \
     && pnpm exec nuxt build
