@@ -343,6 +343,10 @@ DYNAMIC_PREFERENCES = {
 # ── Security (prod hardening) ─────────────────────────────────────────────────
 
 if not DEBUG:
+    # Behind a TLS-terminating reverse proxy (Caddy), trust its forwarded-proto
+    # header. Without this, SECURE_SSL_REDIRECT loops forever because Django
+    # only sees the plain-HTTP hop from the proxy and keeps redirecting to https.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
