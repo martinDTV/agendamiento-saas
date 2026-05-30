@@ -23,8 +23,9 @@
 		dns digitalocean {$DO_AUTH_TOKEN}
 	}
 
-	# Django API / admin / assets first, regardless of host.
-	@backend path /rest/* /dadmin/* /static/* /media/*
+	# Django API / WebSockets / admin / assets first, regardless of host.
+	# /ws/* is the Channels (Daphne) support chat; reverse_proxy upgrades it.
+	@backend path /rest/* /ws/* /dadmin/* /static/* /media/*
 	reverse_proxy @backend backend:8000
 
 	# Admin panel hosts: admin-<clinic>.demo-agendamiento.nexosoftdev.com
