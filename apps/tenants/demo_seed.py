@@ -107,10 +107,12 @@ def _gor_create(model, tenant, lookup, defaults=None):
 
 
 def _upsert_user(email, first_name, last_name, password):
-    user, created = User.objects.get_or_create(
-        email=email,
-        defaults={"first_name": first_name, "last_name": last_name, "username": email},
-    )
+    # The custom User has a NOT NULL `rol_usuario` whose model-level default is
+    # not enforced at the DB level, so set it explicitly to avoid IntegrityError.
+    defaults = {"first_name": first_name, "last_name": last_name, "username": email}
+    if any(f.name == "rol_usuario" for f in User._meta.get_fields()):
+        defaults["rol_usuario"] = "usuario_normal"
+    user, created = User.objects.get_or_create(email=email, defaults=defaults)
     if created:
         user.set_password(password)
         user.save()
