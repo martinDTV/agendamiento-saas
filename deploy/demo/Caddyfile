@@ -12,31 +12,24 @@
 	reverse_proxy marketing:3000
 }
 
-# Admin panel host: admin-<clinic>.demo-agendamiento.nexosoftdev.com
-# More specific than the wildcard below, so Caddy routes it here first.
-admin-*.{$DEMO_DOMAIN} {
-	tls {
-		dns digitalocean {$DO_AUTH_TOKEN}
-	}
-
-	# API + static/media still go to the backend.
-	@backend path /rest/* /dadmin/* /static/* /media/*
-	reverse_proxy @backend backend:8000
-
-	# Everything else is the Nuxt admin app (SSR).
-	reverse_proxy admin:3000
-}
-
-# Wildcard demo domain: every <clinic>.demo-agendamiento.nexosoftdev.com plus the
-# apex demo host resolve here. TLS for the wildcard is issued via DigitalOcean DNS-01.
+# Wildcard demo domain. A single site block handles every clinic subdomain to
+# avoid ambiguity between overlapping wildcards. Routing inside:
+#   - admin-<clinic>.demo-...  → Nuxt admin panel
+#   - <clinic>.demo-...        → Nuxt patient booking site
+#   - /rest, /dadmin, /static, /media → Django backend (any host)
+# TLS for the wildcard is issued via DigitalOcean DNS-01.
 *.{$DEMO_DOMAIN}, {$DEMO_DOMAIN} {
 	tls {
 		dns digitalocean {$DO_AUTH_TOKEN}
 	}
 
-	# Django API + Django-admin + static/media go to the backend.
+	# Django API / admin / assets first, regardless of host.
 	@backend path /rest/* /dadmin/* /static/* /media/*
 	reverse_proxy @backend backend:8000
+
+	# Admin panel hosts: admin-<clinic>.demo-agendamiento.nexosoftdev.com
+	@adminhost host admin-*.{$DEMO_DOMAIN}
+	reverse_proxy @adminhost admin:3000
 
 	# Everything else is the Nuxt patient booking app (SSR).
 	reverse_proxy frontend:3000
