@@ -28,7 +28,9 @@
 	reverse_proxy @backend backend:8000
 
 	# Admin panel hosts: admin-<clinic>.demo-agendamiento.nexosoftdev.com
-	@adminhost host admin-*.{$DEMO_DOMAIN}
+	# (host matcher with * only matches a whole label, so use a regexp to match
+	# the "admin-" prefix within the first label).
+	@adminhost header_regexp Host ^admin-
 	reverse_proxy @adminhost admin:3000
 
 	# Everything else is the Nuxt patient booking app (SSR).
