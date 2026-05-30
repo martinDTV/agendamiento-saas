@@ -19,10 +19,13 @@ COPY packages/shared/package.json packages/shared/package.json
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-# Build from inside the app dir so nuxt prepare + build share the same .nuxt
-# (the tsconfig.app.json that the build needs lands where the build looks).
+# In this pnpm monorepo, `nuxt prepare` writes .nuxt inside the app, but the
+# production build's esbuild resolves tsconfig.app.json from the WORKSPACE ROOT
+# (/app/.nuxt). Copy the generated .nuxt to the root so the build finds it.
 WORKDIR /app/apps/marketing
-RUN pnpm exec nuxt prepare && pnpm exec nuxt build
+RUN pnpm exec nuxt prepare \
+    && cp -r .nuxt /app/.nuxt \
+    && pnpm exec nuxt build
 WORKDIR /app
 
 # ── Runtime: only the Nitro output ─────────────────────────────────────────────

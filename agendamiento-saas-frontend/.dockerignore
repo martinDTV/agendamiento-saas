@@ -1,0 +1,9 @@
+node_modules
+**/node_modules
+**/.nuxt
+**/.output
+**/.data
+**/dist
+.git
+.DS_Store
+*.log
