@@ -116,6 +116,50 @@ DEMO_RESERVED_SLUGS = {
 _SLUG_RE = re.compile(r'^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$')
 
 
+def is_valid_demo_slug(slug):
+    return slug not in DEMO_RESERVED_SLUGS and bool(_SLUG_RE.match(slug))
+
+
+def get_or_create_demo_tenant(slug):
+    """
+    Return the demo tenant for `slug`, creating + seeding it on first request.
+
+    Used both by DemoTenantMiddleware (subdomain hit) and by the resolve
+    endpoint (Nuxt SSR passes the slug in the URL while the Host is the apex).
+    Returns None if DEMO_MODE is off or the slug is reserved/invalid.
+    """
+    from apps.tenants.demo_seed import seed_tenant
+    from apps.tenants.models import Tenant
+
+    if not getattr(settings, 'DEMO_MODE', False) or not is_valid_demo_slug(slug):
+        return None
+
+    ttl_days = getattr(settings, 'DEMO_TENANT_TTL_DAYS', 7)
+    name = slug.replace('-', ' ').title()
+    expires_at = timezone.now() + timezone.timedelta(days=ttl_days)
+
+    with transaction.atomic():
+        tenant, created = Tenant.objects.get_or_create(
+            slug=slug,
+            defaults={
+                'name': name,
+                'type': 'clinic',
+                'plan': 'demo',
+                'is_active': True,
+                'settings': {
+                    'demo': True,
+                    'demo_expires_at': expires_at.isoformat(),
+                    'timezone': 'America/Mexico_City',
+                    'locale': 'es-MX',
+                },
+            },
+        )
+        if created:
+            seed_tenant(tenant)
+
+    return tenant
+
+
 class DemoTenantMiddleware(TenantMiddleware):
     """
     Demo variant of TenantMiddleware.
@@ -135,43 +179,10 @@ class DemoTenantMiddleware(TenantMiddleware):
         self.demo_ttl_days = getattr(settings, 'DEMO_TENANT_TTL_DAYS', 7)
 
     def _get_active_tenant(self, slug):
-        from apps.tenants.models import Tenant
-
         try:
             return super()._get_active_tenant(slug)
         except TenantNotFoundError:
-            if not self.demo_mode or not self._is_valid_demo_slug(slug):
+            tenant = get_or_create_demo_tenant(slug)
+            if tenant is None:
                 raise
-            return self._create_demo_tenant(slug)
-
-    @staticmethod
-    def _is_valid_demo_slug(slug):
-        return slug not in DEMO_RESERVED_SLUGS and bool(_SLUG_RE.match(slug))
-
-    def _create_demo_tenant(self, slug):
-        from apps.tenants.demo_seed import seed_tenant
-        from apps.tenants.models import Tenant
-
-        name = slug.replace('-', ' ').title()
-        expires_at = timezone.now() + timezone.timedelta(days=self.demo_ttl_days)
-
-        with transaction.atomic():
-            tenant, created = Tenant.objects.get_or_create(
-                slug=slug,
-                defaults={
-                    'name': name,
-                    'type': 'clinic',
-                    'plan': 'demo',
-                    'is_active': True,
-                    'settings': {
-                        'demo': True,
-                        'demo_expires_at': expires_at.isoformat(),
-                        'timezone': 'America/Mexico_City',
-                        'locale': 'es-MX',
-                    },
-                },
-            )
-            if created:
-                seed_tenant(tenant)
-
-        return tenant
+            return tenant
