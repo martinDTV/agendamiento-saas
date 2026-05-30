@@ -7,8 +7,11 @@ useSeoMeta({
 })
 
 const DEMO_DOMAIN = 'demo-agendamiento.nexosoftdev.com'
+const config = useRuntimeConfig()
 
 const name = ref('')
+const status = ref('idle') // idle | creating | error
+const errorMsg = ref('')
 
 // Convert a clinic name to a URL-safe slug.
 const slug = computed(() => {
@@ -29,9 +32,21 @@ const panelUrl = computed(() => `https://admin-${slug.value}.${DEMO_DOMAIN}`)
 const adminEmail = computed(() => `admin@${slug.value}.demo.local`)
 
 const created = ref(false)
-function go() {
-  if (!ready.value) return
-  created.value = true
+async function go() {
+  if (!ready.value || status.value === 'creating') return
+  status.value = 'creating'
+  errorMsg.value = ''
+  try {
+    // Create + seed the clinic now so we can surface the per-IP limit clearly.
+    await $fetch(`${config.public.apiBase}/tenants/resolve/${slug.value}/`, { method: 'GET' })
+    created.value = true
+    status.value = 'idle'
+  } catch (e) {
+    status.value = 'error'
+    errorMsg.value = e?.response?.status === 429
+      ? 'Alcanzaste el límite de demos por hoy. Inténtalo mañana o escríbenos para una demo guiada.'
+      : 'No pudimos crear la demo en este momento. Intenta de nuevo en un momento.'
+  }
 }
 </script>
 
@@ -76,10 +91,14 @@ function go() {
           block
           class="justify-center"
           :disabled="!ready"
+          :loading="status === 'creating'"
           trailing-icon="i-lucide-arrow-right"
-          label="Crear mi demo"
+          :label="status === 'creating' ? 'Creando tu demo…' : 'Crear mi demo'"
           @click="go"
         />
+        <p v-if="status === 'error'" class="text-center text-sm text-error">
+          {{ errorMsg }}
+        </p>
         <p class="text-center text-xs text-muted">
           La demo se borra automáticamente a los 7 días.
         </p>

@@ -26,9 +26,15 @@ export default defineNuxtPlugin(async (nuxtApp) => {
   if (!slug) return
 
   try {
+    // Forward the end-user's IP so the backend can enforce the per-IP demo
+    // creation limit (this SSR request originates from the server, not the user).
+    const userIp = (event.node.req.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim()
     const tenant = await $fetch<Tenant>(
       `${useRuntimeConfig().public.apiBase}/tenants/resolve/${slug}/`,
-      { method: 'GET' }
+      {
+        method: 'GET',
+        headers: userIp ? { 'X-Demo-Client-IP': userIp } : undefined
+      }
     )
     const store = useTenantStore(nuxtApp.$pinia as Parameters<typeof useTenantStore>[0])
     store.setTenant(tenant)

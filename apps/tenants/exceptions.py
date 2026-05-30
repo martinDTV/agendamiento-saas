@@ -4,3 +4,7 @@ class TenantNotFoundError(Exception):
 
 class TenantInactiveError(Exception):
     """Raised when the resolved tenant exists but is inactive."""
+
+
+class DemoLimitReachedError(Exception):
+    """Raised when an IP has hit its daily demo-creation limit."""

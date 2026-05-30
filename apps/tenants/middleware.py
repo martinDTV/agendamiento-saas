@@ -120,19 +120,46 @@ def is_valid_demo_slug(slug):
     return slug not in DEMO_RESERVED_SLUGS and bool(_SLUG_RE.match(slug))
 
 
-def get_or_create_demo_tenant(slug):
+def _demo_quota_key(ip):
+    # One counter per IP per UTC day.
+    day = timezone.now().strftime('%Y%m%d')
+    return f'demo:create:{day}:{ip}'
+
+
+def get_or_create_demo_tenant(slug, client_ip=None):
     """
     Return the demo tenant for `slug`, creating + seeding it on first request.
 
     Used both by DemoTenantMiddleware (subdomain hit) and by the resolve
     endpoint (Nuxt SSR passes the slug in the URL while the Host is the apex).
     Returns None if DEMO_MODE is off or the slug is reserved/invalid.
+
+    If `client_ip` is given, enforces a per-IP daily creation limit
+    (DEMO_MAX_PER_IP_PER_DAY). Accessing an already-existing demo never counts;
+    only creating a new one does. Raises DemoLimitReachedError when exceeded.
     """
+    from django.core.cache import cache
+
     from apps.tenants.demo_seed import seed_tenant
+    from apps.tenants.exceptions import DemoLimitReachedError
     from apps.tenants.models import Tenant
 
     if not getattr(settings, 'DEMO_MODE', False) or not is_valid_demo_slug(slug):
         return None
+
+    # Existing demo? Return it without touching the quota.
+    existing = Tenant.objects.filter(slug=slug, is_active=True).first()
+    if existing is not None:
+        return existing
+
+    # New tenant: enforce the per-IP daily quota before creating.
+    limit = getattr(settings, 'DEMO_MAX_PER_IP_PER_DAY', 2)
+    quota_key = None
+    if client_ip and limit:
+        quota_key = _demo_quota_key(client_ip)
+        used = cache.get(quota_key, 0)
+        if used >= limit:
+            raise DemoLimitReachedError(client_ip)
 
     ttl_days = getattr(settings, 'DEMO_TENANT_TTL_DAYS', 7)
     name = slug.replace('-', ' ').title()
@@ -156,6 +183,13 @@ def get_or_create_demo_tenant(slug):
         )
         if created:
             seed_tenant(tenant)
+
+    # Count this creation against the IP's daily quota (expires after ~24h).
+    if created and quota_key:
+        try:
+            cache.set(quota_key, cache.get(quota_key, 0) + 1, timeout=86400)
+        except Exception:
+            pass
 
     return tenant
 

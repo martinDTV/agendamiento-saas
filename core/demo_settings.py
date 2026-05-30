@@ -34,6 +34,9 @@ DATABASES = {
 # ── Demo tenancy ────────────────────────────────────────────────────────────────
 DEMO_MODE = True
 DEMO_TENANT_TTL_DAYS = int(os.getenv('DEMO_TENANT_TTL_DAYS', '7'))
+# Max NEW demo clinics a single IP can create per day (accessing existing ones
+# never counts). Counter lives in the Redis cache.
+DEMO_MAX_PER_IP_PER_DAY = int(os.getenv('DEMO_MAX_PER_IP_PER_DAY', '2'))
 
 # DEMO_PLATFORM_DOMAIN takes precedence so a local .env PLATFORM_DOMAIN (used by
 # production settings) cannot accidentally point the demo at the prod domain.
