@@ -15,8 +15,7 @@ resource "digitalocean_droplet" "demo" {
     django_secret_key    = var.django_secret_key
     postgres_password    = var.postgres_password
     acme_email           = var.acme_email
-    namecom_user         = var.namecom_user
-    namecom_token        = var.namecom_token
+    do_auth_token        = var.do_token
     repo_url             = var.repo_url
     repo_branch          = var.repo_branch
   })
@@ -24,23 +23,26 @@ resource "digitalocean_droplet" "demo" {
   tags = ["agendamiento", "demo"]
 }
 
-# name.com DNS — managed at the apex zone (var.root_domain).
-# Host values are relative to the zone, so we use the subdomain labels only.
+# DNS lives in DigitalOcean (nexosoftdev.com uses ns1/ns2/ns3.digitalocean.com).
+# The zone already exists, so we reference it instead of creating it.
+data "digitalocean_domain" "root" {
+  name = var.root_domain
+}
 
-# demo-agendamiento.nexosoftdev.com  -> droplet
-resource "namedotcom_record" "demo_apex" {
-  domain_name = var.root_domain
-  host        = var.demo_subdomain
-  record_type = "A"
-  answer      = digitalocean_droplet.demo.ipv4_address
-  ttl         = 300
+# demo-agendamiento.nexosoftdev.com -> droplet
+resource "digitalocean_record" "demo_apex" {
+  domain = data.digitalocean_domain.root.name
+  type   = "A"
+  name   = var.demo_subdomain
+  value  = digitalocean_droplet.demo.ipv4_address
+  ttl    = 300
 }
 
 # *.demo-agendamiento.nexosoftdev.com -> droplet (every clinic subdomain)
-resource "namedotcom_record" "demo_wildcard" {
-  domain_name = var.root_domain
-  host        = "*.${var.demo_subdomain}"
-  record_type = "A"
-  answer      = digitalocean_droplet.demo.ipv4_address
-  ttl         = 300
+resource "digitalocean_record" "demo_wildcard" {
+  domain = data.digitalocean_domain.root.name
+  type   = "A"
+  name   = "*.${var.demo_subdomain}"
+  value  = digitalocean_droplet.demo.ipv4_address
+  ttl    = 300
 }

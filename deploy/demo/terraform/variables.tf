@@ -7,18 +7,6 @@ variable "do_token" {
   sensitive   = true
 }
 
-variable "namecom_user" {
-  description = "name.com API username"
-  type        = string
-  sensitive   = true
-}
-
-variable "namecom_token" {
-  description = "name.com API token"
-  type        = string
-  sensitive   = true
-}
-
 variable "root_domain" {
   description = "Registered apex domain in name.com"
   type        = string

@@ -91,3 +91,5 @@ logs/
 # pero ignoramos node_modules globalmente por si acaso)
 # ==========================================
 node_modules/
+
+.claude

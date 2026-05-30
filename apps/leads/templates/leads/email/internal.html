@@ -1,0 +1,48 @@
+{% extends "email/_base.html" %}
+
+{% block title %}Nuevo lead — NexoSoftDev{% endblock %}
+{% block preheader %}{{ lead.name }} pidió información del plan {{ plan_label }}.{% endblock %}
+
+{% block hero_eyebrow %}
+<div style="font-size:12px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:#7A4FED; margin-bottom:6px;">
+    Nuevo lead
+</div>
+{% endblock %}
+
+{% block hero_title %}{{ lead.name }} quiere información{% endblock %}
+
+{% block content %}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:8px;">
+    <tr>
+        <td style="padding:8px 0; font-size:14px; color:#475569;">Nombre</td>
+        <td style="padding:8px 0; font-size:14px; color:#15263F; font-weight:600;" align="right">{{ lead.name }}</td>
+    </tr>
+    <tr>
+        <td style="padding:8px 0; font-size:14px; color:#475569;">Correo</td>
+        <td style="padding:8px 0; font-size:14px; color:#15263F; font-weight:600;" align="right">{{ lead.email }}</td>
+    </tr>
+    {% if lead.phone %}
+    <tr>
+        <td style="padding:8px 0; font-size:14px; color:#475569;">Teléfono</td>
+        <td style="padding:8px 0; font-size:14px; color:#15263F; font-weight:600;" align="right">{{ lead.phone }}</td>
+    </tr>
+    {% endif %}
+    <tr>
+        <td style="padding:8px 0; font-size:14px; color:#475569;">Plan de interés</td>
+        <td style="padding:8px 0; font-size:14px; color:#15263F; font-weight:600;" align="right">{{ plan_label }}</td>
+    </tr>
+    <tr>
+        <td style="padding:8px 0; font-size:14px; color:#475569;">Origen</td>
+        <td style="padding:8px 0; font-size:14px; color:#15263F; font-weight:600;" align="right">{{ lead.source }}</td>
+    </tr>
+</table>
+{% if lead.message %}
+<div style="margin-top:16px; padding:16px; background:#F0F4F9; border-radius:12px; font-size:14px; color:#15263F; line-height:1.6;">
+    {{ lead.message }}
+</div>
+{% endif %}
+{% endblock %}
+
+{% block footer_note %}
+Responde directamente a este correo para contactar al prospecto.
+{% endblock %}

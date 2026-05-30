@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'apps.patients',
     'apps.places',
     'apps.reviews',
+    'apps.leads',
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -209,6 +210,7 @@ REST_FRAMEWORK = {
         'user': os.getenv('THROTTLE_USER', '1000/hour'),
         'booking_create': os.getenv('THROTTLE_BOOKING_CREATE', '5/hour'),
         'slots': os.getenv('THROTTLE_SLOTS', '60/hour'),
+        'leads': os.getenv('THROTTLE_LEADS', '10/hour'),
     },
 }
 
@@ -264,6 +266,9 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@miapp.com')
+
+# Destinatario de los avisos de nuevos leads de la landing de marketing.
+LEADS_NOTIFY_EMAIL = os.getenv('LEADS_NOTIFY_EMAIL', 'hola@nexosoftdev.com')
 
 # URL pública del backend, usada en correos transaccionales (links de activación
 # de pacientes, recuperación de contraseña, etc.) que deben funcionar desde

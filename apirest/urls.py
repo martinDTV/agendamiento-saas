@@ -129,6 +129,8 @@ urlpatterns = [
     # ── Reviews de doctores ────────────────────────────────────────────────
     path('public/reviews/', include('apps.reviews.public_urls')),
     path('reviews/', include('apps.reviews.urls', namespace='reviews')),
+    # ── Leads / solicitudes de contacto desde la landing ───────────────────
+    path('public/leads/', include('apps.leads.public_urls')),
     path('reports/', include('apps.reports.urls')),
     path('public/ai/', include('apps.ai.urls')),
     path('meetings/', include('apps.meetings.urls', namespace='meetings')),

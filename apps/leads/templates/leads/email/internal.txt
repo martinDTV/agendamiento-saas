@@ -1,0 +1,12 @@
+Nuevo lead — NexoSoftDev
+
+Nombre:  {{ lead.name }}
+Correo:  {{ lead.email }}
+{% if lead.phone %}Teléfono: {{ lead.phone }}
+{% endif %}Plan de interés: {{ plan_label }}
+Origen:  {{ lead.source }}
+{% if lead.message %}
+Mensaje:
+{{ lead.message }}
+{% endif %}
+Responde a este correo para contactar al prospecto.

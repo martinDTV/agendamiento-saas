@@ -1,6 +1,6 @@
-# Caddy with the name.com DNS provider, needed for wildcard TLS (DNS-01 challenge).
+# Caddy with the DigitalOcean DNS provider, needed for wildcard TLS (DNS-01 challenge).
 FROM caddy:2-builder AS builder
-RUN xcaddy build --with github.com/caddy-dns/namedotcom
+RUN xcaddy build --with github.com/caddy-dns/digitalocean
 
 FROM caddy:2
 COPY --from=builder /usr/bin/caddy /usr/bin/caddy

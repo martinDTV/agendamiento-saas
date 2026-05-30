@@ -16,8 +16,7 @@ write_files:
       POSTGRES_USER=demo
       POSTGRES_PASSWORD=${postgres_password}
       ACME_EMAIL=${acme_email}
-      NAMECOM_USER=${namecom_user}
-      NAMECOM_TOKEN=${namecom_token}
+      DO_AUTH_TOKEN=${do_auth_token}
 
 runcmd:
   # Install Docker Engine + compose plugin

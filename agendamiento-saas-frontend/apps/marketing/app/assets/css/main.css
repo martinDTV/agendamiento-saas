@@ -38,3 +38,60 @@
 :root {
   --ui-primary: var(--color-navy-600);
 }
+
+/* Scroll reveals are driven by GSAP (app/plugins/reveal.client.ts), which sets
+   the initial hidden state inline only when motion is allowed. No CSS reveal
+   classes here, so content is always visible without JS / under reduced-motion. */
+
+/* Subtle, purposeful lift on interactive cards. */
+.lift {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .lift:hover {
+    transform: translateY(-4px);
+  }
+}
+
+/* Tactile button press — quick feedback on click (product-grade). */
+button,
+a[role="button"],
+.u-button {
+  transition: transform 0.08s ease;
+}
+
+button:active,
+a[role="button"]:active {
+  transform: scale(0.97);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .lift {
+    transition: none !important;
+  }
+
+  .lift:hover {
+    transform: none !important;
+  }
+
+  button,
+  a[role="button"],
+  .u-button {
+    transition: none !important;
+  }
+
+  button:active,
+  a[role="button"]:active {
+    transform: none !important;
+  }
+}

@@ -1,0 +1,33 @@
+{% extends "email/_base.html" %}
+
+{% block title %}Recibimos tu solicitud — NexoSoftDev{% endblock %}
+{% block preheader %}Gracias por tu interés. Te contactaremos muy pronto.{% endblock %}
+
+{% block hero_eyebrow %}
+<div style="font-size:12px; font-weight:600; letter-spacing:0.8px; text-transform:uppercase; color:#7A4FED; margin-bottom:6px;">
+    Solicitud recibida
+</div>
+{% endblock %}
+
+{% block hero_title %}Gracias, {{ first_name }}{% endblock %}
+
+{% block hero_subtitle %}
+<p style="margin:0; font-size:15px; color:#475569; line-height:1.6;">
+    Recibimos tu solicitud de información{% if plan_label and plan_label != 'No especificado' %} sobre el plan <strong style="color:#15263F;">{{ plan_label }}</strong>{% endif %}.
+</p>
+{% endblock %}
+
+{% block content %}
+<p style="margin:0 0 12px; font-size:15px; color:#15263F; line-height:1.7;">
+    Un miembro del equipo de NexoSoftDev te contactará muy pronto para resolver
+    tus dudas y ayudarte a poner tu agenda médica en marcha.
+</p>
+<p style="margin:0; font-size:15px; color:#15263F; line-height:1.7;">
+    Mientras tanto, si quieres adelantar algo, puedes responder a este correo
+    con tus preguntas.
+</p>
+{% endblock %}
+
+{% block footer_note %}
+Si no solicitaste esta información, puedes ignorar este correo.
+{% endblock %}

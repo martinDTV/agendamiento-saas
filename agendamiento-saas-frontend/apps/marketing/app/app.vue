@@ -89,6 +89,8 @@ const year = new Date().getFullYear()
       <NuxtPage />
     </UMain>
 
+    <LeadModal />
+
     <UFooter>
       <template #top>
         <UContainer>

@@ -1,8 +1,8 @@
 # Copy to terraform.tfvars (git-ignored) and fill in, or pass via TF_VAR_* env vars.
 
+# do_token needs read+write scope: it manages the droplet, the DNS records,
+# and is reused by Caddy for the wildcard TLS DNS-01 challenge.
 do_token            = "dop_v1_xxxxxxxx"
-namecom_user        = "your-namecom-username"
-namecom_token       = "your-namecom-api-token"
 ssh_key_fingerprint = "aa:bb:cc:dd:..."   # an SSH key already in your DO account
 
 root_domain    = "nexosoftdev.com"

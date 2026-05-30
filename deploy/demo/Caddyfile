@@ -6,10 +6,7 @@
 # apex demo host resolve here. TLS for the wildcard is issued via name.com DNS-01.
 *.{$DEMO_DOMAIN}, {$DEMO_DOMAIN} {
 	tls {
-		dns namedotcom {
-			user {$NAMECOM_USER}
-			token {$NAMECOM_TOKEN}
-		}
+		dns digitalocean {$DO_AUTH_TOKEN}
 	}
 
 	# Django API + admin + static/media go to the backend.

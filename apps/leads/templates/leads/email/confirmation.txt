@@ -1,0 +1,10 @@
+Gracias, {{ first_name }}
+
+Recibimos tu solicitud de información{% if plan_label and plan_label != 'No especificado' %} sobre el plan {{ plan_label }}{% endif %}.
+
+Un miembro del equipo de NexoSoftDev te contactará muy pronto para resolver
+tus dudas y ayudarte a poner tu agenda médica en marcha.
+
+Si quieres adelantar algo, responde a este correo con tus preguntas.
+
+— NexoSoftDev
