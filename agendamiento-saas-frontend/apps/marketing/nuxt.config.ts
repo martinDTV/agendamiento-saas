@@ -16,12 +16,11 @@ export default defineNuxtConfig({
     }
   },
 
-  routeRules: {
-    '/': { prerender: true },
-    '/funciones': { prerender: true },
-    '/contacto': { prerender: true },
-    '/aviso-privacidad': { prerender: true },
-    '/terminos': { prerender: true }
+  // Served via SSR (Nitro node-server) behind Caddy. Prerendering all routes
+  // spikes memory during build and OOMs on the small droplet, so we skip it;
+  // the pages are still fully server-rendered and cacheable.
+  nitro: {
+    prerender: { crawlLinks: false, routes: [] }
   },
 
   runtimeConfig: {
