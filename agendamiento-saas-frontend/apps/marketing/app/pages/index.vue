@@ -1,9 +1,6 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
-// Demo multiclínica desplegada en el Droplet (DigitalOcean).
-const DEMO_URL = 'https://demo-agendamiento.nexosoftdev.com'
-
 // Screenshots reales del panel (servidos desde CDN externo).
 const SHOT_BASE = 'https://cloud-images-mdtv.web.app/images/nexosoftdev/agendamiento'
 const shot = name => `${SHOT_BASE}/${name}-agendamiento-nexosoftdev.png`
@@ -293,7 +290,7 @@ onBeforeUnmount(() => {
         <UButton
           data-hero
           label="Prueba gratis"
-          to="#precios"
+          to="/probar"
           size="xl"
           trailing-icon="i-lucide-arrow-right"
         />
@@ -704,8 +701,7 @@ onBeforeUnmount(() => {
         variant="subtle"
         :links="[{
           label: 'Probar la demo gratis',
-          to: DEMO_URL,
-          target: '_blank',
+          to: '/probar',
           trailingIcon: 'i-lucide-arrow-right',
           size: 'xl'
         }, {

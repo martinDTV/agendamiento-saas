@@ -57,7 +57,7 @@ const year = new Date().getFullYear()
 
         <UButton
           label="Prueba gratis"
-          to="#precios"
+          to="/probar"
           trailing-icon="i-lucide-arrow-right"
         />
       </template>
@@ -79,7 +79,7 @@ const year = new Date().getFullYear()
         />
         <UButton
           label="Prueba gratis"
-          to="#precios"
+          to="/probar"
           block
         />
       </template>

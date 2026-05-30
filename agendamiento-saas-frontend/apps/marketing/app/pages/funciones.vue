@@ -5,7 +5,6 @@ useSeoMeta({
 })
 
 const { open: openLead } = useLeadModal()
-const DEMO_URL = 'https://demo-agendamiento.nexosoftdev.com'
 
 const groups = [
   {
@@ -97,7 +96,7 @@ const groups = [
         </p>
       </div>
       <div class="flex gap-2">
-        <UButton :to="DEMO_URL" target="_blank" trailing-icon="i-lucide-arrow-right">
+        <UButton to="/probar" trailing-icon="i-lucide-arrow-right">
           Probar la demo
         </UButton>
         <UButton color="neutral" variant="subtle" @click="openLead('')">

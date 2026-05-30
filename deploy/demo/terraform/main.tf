@@ -46,3 +46,12 @@ resource "digitalocean_record" "demo_wildcard" {
   value  = digitalocean_droplet.demo.ipv4_address
   ttl    = 300
 }
+
+# agendamiento.nexosoftdev.com -> droplet (the public marketing landing)
+resource "digitalocean_record" "landing" {
+  domain = data.digitalocean_domain.root.name
+  type   = "A"
+  name   = var.landing_subdomain
+  value  = digitalocean_droplet.demo.ipv4_address
+  ttl    = 300
+}

@@ -19,9 +19,13 @@
 		dns digitalocean {$DO_AUTH_TOKEN}
 	}
 
-	# Django API + admin + static/media go to the backend.
-	@backend path /rest/* /admin/* /static/* /media/*
+	# Django API + Django-admin + static/media go to the backend.
+	@backend path /rest/* /dadmin/* /static/* /media/*
 	reverse_proxy @backend backend:8000
+
+	# /panel* → the Nuxt admin panel (served under baseURL /panel/).
+	@panel path /panel /panel/*
+	reverse_proxy @panel admin:3000
 
 	# Everything else is the Nuxt patient booking app (SSR).
 	reverse_proxy frontend:3000

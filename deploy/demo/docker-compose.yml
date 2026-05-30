@@ -75,6 +75,19 @@ services:
     depends_on:
       - backend
 
+  # Admin panel → clinica.demo-agendamiento.nexosoftdev.com/panel
+  admin:
+    build:
+      context: ../../agendamiento-saas-frontend
+      dockerfile: ../deploy/demo/Dockerfile.admin
+      args:
+        NUXT_PUBLIC_API_BASE: https://${DEMO_DOMAIN}/rest/v1
+        NUXT_PUBLIC_PLATFORM_DOMAIN: ${DEMO_DOMAIN}
+        NUXT_APP_BASE_URL: /panel/
+    restart: unless-stopped
+    depends_on:
+      - backend
+
   # Public marketing landing → agendamiento.nexosoftdev.com
   marketing:
     build:
@@ -107,6 +120,7 @@ services:
       - backend
       - frontend
       - marketing
+      - admin
 
 volumes:
   demo_pgdata:

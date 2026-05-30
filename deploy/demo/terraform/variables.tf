@@ -19,6 +19,12 @@ variable "demo_subdomain" {
   default     = "demo-agendamiento"
 }
 
+variable "landing_subdomain" {
+  description = "Subdomain under root_domain for the public marketing landing"
+  type        = string
+  default     = "agendamiento"
+}
+
 variable "ssh_key_fingerprint" {
   description = "Fingerprint of an SSH key already uploaded to DigitalOcean"
   type        = string
