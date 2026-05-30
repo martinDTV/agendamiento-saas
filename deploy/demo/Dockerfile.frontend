@@ -22,10 +22,11 @@ COPY packages/shared/package.json packages/shared/package.json
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-# `nuxt prepare` generates .nuxt/tsconfig.app.json that the build needs. The
-# postinstall ran before the full source was copied, so run it again here.
-RUN pnpm --filter @agendamiento/public exec nuxt prepare
-RUN pnpm --filter @agendamiento/public build
+# Build from inside the app dir so nuxt prepare + build share the same .nuxt
+# (the tsconfig.app.json that the build needs lands where the build looks).
+WORKDIR /app/apps/public
+RUN pnpm exec nuxt prepare && pnpm exec nuxt build
+WORKDIR /app
 
 # ── Runtime: only the Nitro output ─────────────────────────────────────────────
 FROM node:22-slim AS runtime
