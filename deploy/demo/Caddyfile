@@ -2,8 +2,18 @@
 	email {$ACME_EMAIL}
 }
 
+# Public marketing landing → agendamiento.nexosoftdev.com
+# TLS via HTTP challenge (single host, no wildcard needed here).
+{$LANDING_DOMAIN} {
+	# The lead form posts to /rest/* on the backend.
+	@api path /rest/*
+	reverse_proxy @api backend:8000
+
+	reverse_proxy marketing:3000
+}
+
 # Wildcard demo domain: every <clinic>.demo-agendamiento.nexosoftdev.com plus the
-# apex demo host resolve here. TLS for the wildcard is issued via name.com DNS-01.
+# apex demo host resolve here. TLS for the wildcard is issued via DigitalOcean DNS-01.
 *.{$DEMO_DOMAIN}, {$DEMO_DOMAIN} {
 	tls {
 		dns digitalocean {$DO_AUTH_TOKEN}

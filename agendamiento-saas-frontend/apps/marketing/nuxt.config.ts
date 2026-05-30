@@ -17,7 +17,11 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    '/': { prerender: true }
+    '/': { prerender: true },
+    '/funciones': { prerender: true },
+    '/contacto': { prerender: true },
+    '/aviso-privacidad': { prerender: true },
+    '/terminos': { prerender: true }
   },
 
   runtimeConfig: {

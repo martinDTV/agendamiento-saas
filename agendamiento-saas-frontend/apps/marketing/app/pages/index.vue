@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 // Demo multiclínica desplegada en el Droplet (DigitalOcean).
 const DEMO_URL = 'https://demo-agendamiento.nexosoftdev.com'
@@ -10,16 +10,76 @@ const shot = name => `${SHOT_BASE}/${name}-agendamiento-nexosoftdev.png`
 
 const heroShot = shot('agenda')
 
-// Galería del producto: capturas representativas del panel real.
+// Galería del producto: cada módulo puede tener VARIAS pantallas, que rotan
+// solas con crossfade dentro de su tab.
 const gallery = [
-  { src: shot('agenda'), label: 'Agenda', caption: 'Vista semanal con citas por doctor y estado en tiempo real.' },
-  { src: shot('doctores'), label: 'Doctores', caption: 'Administra tu equipo médico, especialidades y sucursales.' },
-  { src: shot('servicios'), label: 'Servicios', caption: 'Define servicios, duraciones y precios por consultorio.' },
-  { src: shot('configuracion-sitio-contenido'), label: 'Página editable', caption: 'Edita el contenido de tu página de reservas sin tocar código.' },
-  { src: shot('juntas'), label: 'Juntas', caption: 'Agenda y coordina reuniones del equipo médico.' },
-  { src: shot('sucursales'), label: 'Sucursales', caption: 'Coordina varias ubicaciones desde un panel central.' }
+  {
+    label: 'Agenda',
+    caption: 'Vista semanal con citas por doctor y estado en tiempo real.',
+    shots: [shot('agenda')]
+  },
+  {
+    label: 'Doctores',
+    caption: 'Administra tu equipo médico, especialidades y sucursales.',
+    shots: [shot('doctores')]
+  },
+  {
+    label: 'Servicios',
+    caption: 'Define servicios, duraciones y precios por consultorio.',
+    shots: [shot('servicios')]
+  },
+  {
+    label: 'Sucursales',
+    caption: 'Coordina varias ubicaciones desde un panel central.',
+    shots: [shot('sucursales')]
+  },
+  {
+    label: 'Configuración',
+    caption: 'Ajusta tu clínica, planes y la página pública desde un solo lugar.',
+    shots: [
+      shot('configuracion'),
+      shot('configuracion-planes'),
+      shot('configuracion-sitio'),
+      shot('configuracion-sitio-contenido')
+    ]
+  },
+  {
+    label: 'Juntas',
+    caption: 'Agenda reuniones, crea salas y coordina al equipo médico.',
+    shots: [shot('juntas'), shot('creacionjuntas'), shot('salajuntas')]
+  },
+  {
+    label: 'Página editable',
+    caption: 'Edita el contenido de tu página de reservas sin tocar código.',
+    shots: [shot('configuracion-sitio-contenido')]
+  }
 ]
+
 const galleryIndex = ref(0)
+const shotIndex = ref(0)
+
+const activeModule = computed(() => gallery[galleryIndex.value])
+const activeShot = computed(() => activeModule.value.shots[shotIndex.value])
+
+// Switching tab resets to the module's first screenshot.
+function selectModule(i) {
+  galleryIndex.value = i
+  shotIndex.value = 0
+}
+
+// Auto-rotate screenshots within a module that has more than one. Pauses on
+// hover and respects reduced-motion (set up in onMounted).
+let rotateTimer = null
+const galleryPaused = ref(false)
+
+function scheduleRotate() {
+  if (rotateTimer) clearInterval(rotateTimer)
+  rotateTimer = setInterval(() => {
+    if (galleryPaused.value) return
+    const n = activeModule.value.shots.length
+    if (n > 1) shotIndex.value = (shotIndex.value + 1) % n
+  }, 3500)
+}
 
 const features = [
   {
@@ -165,11 +225,17 @@ const plans = [
   }
 ]
 
-// Hero entrance: a quick, sequenced reveal on first paint.
+// Hero entrance + gallery auto-rotation.
 onMounted(async () => {
   if (import.meta.server) return
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  // Gallery auto-rotation runs unless the user prefers reduced motion.
+  if (!reduced) scheduleRotate()
+
+  // Hero entrance (skipped under reduced motion).
+  if (reduced) return
   const { gsap } = await import('gsap')
   const targets = Array.from(document.querySelectorAll('[data-hero]'))
   if (!targets.length) return
@@ -183,6 +249,10 @@ onMounted(async () => {
     stagger: 0.12,
     delay: 0.1
   })
+})
+
+onBeforeUnmount(() => {
+  if (rotateTimer) clearInterval(rotateTimer)
 })
 </script>
 
@@ -297,43 +367,13 @@ onMounted(async () => {
           </p>
         </div>
 
-        <!-- Bento: rows of unequal weight, not six identical tiles -->
-        <div class="mt-12 grid gap-4 md:grid-cols-6">
+        <!-- Even grid: six equal tiles, 3 across on desktop. -->
+        <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <article
-            v-reveal
-            class="lift flex flex-col justify-between rounded-2xl border border-default bg-elevated/40 p-7 md:col-span-3 lg:col-span-4"
-          >
-            <UIcon :name="features[0].icon" class="size-7 text-primary" />
-            <div class="mt-10">
-              <h3 class="text-lg font-medium text-highlighted">
-                {{ features[0].title }}
-              </h3>
-              <p class="mt-2 max-w-md text-muted">
-                {{ features[0].description }}
-              </p>
-            </div>
-          </article>
-
-          <article
-            v-reveal="80"
-            class="lift flex flex-col justify-between rounded-2xl border border-default p-7 md:col-span-3 lg:col-span-2"
-          >
-            <UIcon :name="features[1].icon" class="size-7 text-primary" />
-            <div class="mt-10">
-              <h3 class="text-lg font-medium text-highlighted">
-                {{ features[1].title }}
-              </h3>
-              <p class="mt-2 text-sm text-muted">
-                {{ features[1].description }}
-              </p>
-            </div>
-          </article>
-
-          <article
-            v-for="(f, i) in features.slice(2)"
+            v-for="(f, i) in features"
             :key="i"
-            v-reveal="i * 80"
-            class="lift rounded-2xl border border-default p-7 md:col-span-3 lg:col-span-2"
+            v-reveal="(i % 3) * 80"
+            class="lift rounded-2xl border border-default p-7"
           >
             <UIcon :name="f.icon" class="size-6 text-primary" />
             <h3 class="mt-5 font-medium text-highlighted">
@@ -370,22 +410,43 @@ onMounted(async () => {
               :class="galleryIndex === i
                 ? 'bg-primary text-inverted'
                 : 'border border-default text-muted hover:text-default'"
-              @click="galleryIndex = i"
+              @click="selectModule(i)"
             >
               {{ g.label }}
             </button>
           </div>
 
-          <!-- Active screenshot -->
-          <div class="mt-6">
-            <BrowserFrame
-              :key="gallery[galleryIndex].src"
-              :src="gallery[galleryIndex].src"
-              :alt="`Panel de NexoSoftDev: ${gallery[galleryIndex].label}`"
-            />
-            <p class="mt-4 max-w-xl text-muted">
-              {{ gallery[galleryIndex].caption }}
-            </p>
+          <!-- Active screenshot — crossfades on every change, auto-rotating
+               through a module's screenshots; pauses on hover. -->
+          <div
+            class="mt-6"
+            @mouseenter="galleryPaused = true"
+            @mouseleave="galleryPaused = false"
+          >
+            <div :key="activeShot" class="shot-anim">
+              <BrowserFrame
+                :src="activeShot"
+                :alt="`Panel de NexoSoftDev: ${activeModule.label}`"
+              />
+            </div>
+
+            <!-- Caption + dots for multi-screenshot modules -->
+            <div class="mt-4 flex items-center justify-between gap-4">
+              <p class="max-w-xl text-muted">
+                {{ activeModule.caption }}
+              </p>
+              <div v-if="activeModule.shots.length > 1" class="flex shrink-0 items-center gap-2">
+                <button
+                  v-for="(s, si) in activeModule.shots"
+                  :key="si"
+                  type="button"
+                  :aria-label="`Pantalla ${si + 1}`"
+                  class="size-2 rounded-full transition-all"
+                  :class="shotIndex === si ? 'w-5 bg-primary' : 'bg-default ring-1 ring-default hover:bg-muted'"
+                  @click="shotIndex = si"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </UContainer>
@@ -658,3 +719,28 @@ onMounted(async () => {
     </UPageSection>
   </div>
 </template>
+
+<style scoped>
+/* Gallery screenshot appearance: each new shot (keyed div remounts on change)
+   fades + lifts in via a keyframe. transform+opacity only, ease-out. */
+.shot-anim {
+  animation: shot-in 0.5s ease-out both;
+}
+
+@keyframes shot-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shot-anim {
+    animation: none;
+  }
+}
+</style>

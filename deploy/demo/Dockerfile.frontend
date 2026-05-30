@@ -22,6 +22,9 @@ COPY packages/shared/package.json packages/shared/package.json
 RUN pnpm install --frozen-lockfile
 
 COPY . .
+# `nuxt prepare` generates .nuxt/tsconfig.app.json that the build needs. The
+# postinstall ran before the full source was copied, so run it again here.
+RUN pnpm --filter @agendamiento/public exec nuxt prepare
 RUN pnpm --filter @agendamiento/public build
 
 # ── Runtime: only the Nitro output ─────────────────────────────────────────────

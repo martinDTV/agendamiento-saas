@@ -1,0 +1,34 @@
+# Marketing landing (apps/marketing) — the public site at agendamiento.nexosoftdev.com.
+# Build context is the frontend workspace root:
+#   docker build -f ../deploy/demo/Dockerfile.marketing agendamiento-saas-frontend
+FROM node:22-slim AS build
+
+ENV PNPM_HOME=/pnpm \
+    PATH=/pnpm:$PATH
+RUN corepack enable
+
+WORKDIR /app
+
+# Public config baked into the SSR bundle (points the lead form at the API).
+ARG NUXT_PUBLIC_API_BASE
+ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE
+
+COPY pnpm-workspace.yaml pnpm-lock.yaml package.json ./
+COPY apps/marketing/package.json apps/marketing/package.json
+COPY packages/shared/package.json packages/shared/package.json
+RUN pnpm install --frozen-lockfile
+
+COPY . .
+# nuxt prepare generates .nuxt/tsconfig.app.json that the build needs.
+RUN pnpm --filter @agendamiento/marketing exec nuxt prepare
+RUN pnpm --filter @agendamiento/marketing build
+
+# ── Runtime: only the Nitro output ─────────────────────────────────────────────
+FROM node:22-slim AS runtime
+ENV NODE_ENV=production \
+    NITRO_HOST=0.0.0.0 \
+    NITRO_PORT=3000
+WORKDIR /app
+COPY --from=build /app/apps/marketing/.output ./.output
+EXPOSE 3000
+CMD ["node", ".output/server/index.mjs"]

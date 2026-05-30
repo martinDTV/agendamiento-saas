@@ -106,9 +106,9 @@ const year = new Date().getFullYear()
                 Producto
               </h3>
               <ul class="space-y-2 text-sm text-muted">
-                <li><NuxtLink to="#funciones" class="hover:text-default">Funciones</NuxtLink></li>
-                <li><NuxtLink to="#precios" class="hover:text-default">Precios</NuxtLink></li>
-                <li><NuxtLink to="#casos" class="hover:text-default">Casos de uso</NuxtLink></li>
+                <li><NuxtLink to="/funciones" class="hover:text-default">Funciones</NuxtLink></li>
+                <li><NuxtLink to="/#precios" class="hover:text-default">Precios</NuxtLink></li>
+                <li><NuxtLink to="/#casos" class="hover:text-default">Casos de uso</NuxtLink></li>
               </ul>
             </div>
             <div>
@@ -116,9 +116,9 @@ const year = new Date().getFullYear()
                 Empresa
               </h3>
               <ul class="space-y-2 text-sm text-muted">
-                <li><NuxtLink to="#" class="hover:text-default">Contacto</NuxtLink></li>
-                <li><NuxtLink to="#" class="hover:text-default">Aviso de privacidad</NuxtLink></li>
-                <li><NuxtLink to="#" class="hover:text-default">Términos y condiciones</NuxtLink></li>
+                <li><NuxtLink to="/contacto" class="hover:text-default">Contacto</NuxtLink></li>
+                <li><NuxtLink to="/aviso-privacidad" class="hover:text-default">Aviso de privacidad</NuxtLink></li>
+                <li><NuxtLink to="/terminos" class="hover:text-default">Términos y condiciones</NuxtLink></li>
               </ul>
             </div>
             <div>
@@ -126,7 +126,7 @@ const year = new Date().getFullYear()
                 Contacto
               </h3>
               <ul class="space-y-2 text-sm text-muted">
-                <li>hola@nexosoftdev.com</li>
+                <li><a href="mailto:vazquezmartin1240@gmail.com" class="hover:text-default">vazquezmartin1240@gmail.com</a></li>
                 <li>México</li>
               </ul>
             </div>

@@ -75,6 +75,17 @@ services:
     depends_on:
       - backend
 
+  # Public marketing landing → agendamiento.nexosoftdev.com
+  marketing:
+    build:
+      context: ../../agendamiento-saas-frontend
+      dockerfile: ../deploy/demo/Dockerfile.marketing
+      args:
+        NUXT_PUBLIC_API_BASE: https://${DEMO_DOMAIN}/rest/v1
+    restart: unless-stopped
+    depends_on:
+      - backend
+
   caddy:
     build:
       context: .
@@ -85,6 +96,7 @@ services:
       - "443:443"
     environment:
       DEMO_DOMAIN: ${DEMO_DOMAIN}
+      LANDING_DOMAIN: ${LANDING_DOMAIN}
       ACME_EMAIL: ${ACME_EMAIL}
       DO_AUTH_TOKEN: ${DO_AUTH_TOKEN}
     volumes:
@@ -94,6 +106,7 @@ services:
     depends_on:
       - backend
       - frontend
+      - marketing
 
 volumes:
   demo_pgdata:
