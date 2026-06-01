@@ -129,8 +129,8 @@ async function confirm() {
     booking.appointmentId = res.id
     booking.goTo(3)
   }
-  catch {
-    toast.add({ title: 'No se pudo confirmar la cita. Intenta de nuevo.', color: 'error' })
+  catch (e) {
+    toast.add({ title: extractApiError(e, 'No se pudo confirmar la cita. Intenta de nuevo.'), color: 'error' })
   }
   finally { submitting.value = false }
 }

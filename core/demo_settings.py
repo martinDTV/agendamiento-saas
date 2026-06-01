@@ -68,3 +68,13 @@ DEFAULT_FROM_EMAIL = 'demo@demo-agendamiento.nexosoftdev.com'
 # Disable WhatsApp / SMS sending if the project reads these flags.
 WHATSAPP_ENABLED = False
 TWILIO_ENABLED = False
+
+# ── Celery runs inline (no worker/broker in the demo) ────────────────────────────
+# The demo stack has no Celery worker, and the default broker points at
+# 127.0.0.1, so `.delay()` would block ~19s trying to reach a broker and then
+# 500. Run tasks eagerly in-process; with the console email backend this is
+# instant and never blocks the request.
+CELERY_TASK_ALWAYS_EAGER = True
+CELERY_TASK_EAGER_PROPAGATES = False
+CELERY_BROKER_URL = 'memory://'
+CELERY_RESULT_BACKEND = 'cache+memory://'
