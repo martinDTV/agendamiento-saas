@@ -200,8 +200,22 @@ class AISuggestReplyView(APIView):
     permission_classes = [IsSupportAgent]
 
     def post(self, request, conversation_id=None):
+        from django.conf import settings
+
         from apps.ai.ollama import suggest_agent_reply
         from apps.catalog.models import Doctor, Service
+
+        # The AI suggestion runs on a local Ollama LLM, which isn't deployed in
+        # the demo environment. Return a clear, friendly placeholder instead of
+        # an empty reply so the demo doesn't look broken.
+        if getattr(settings, 'DEMO_MODE', False):
+            return Response({
+                'reply': '',
+                'unavailable': True,
+                'detail': 'La sugerencia con IA no está disponible en la demo. '
+                          'En producción, aquí aparecería un borrador de respuesta '
+                          'generado automáticamente.',
+            })
 
         try:
             conv = Conversation.objects.for_tenant(request.tenant).get(pk=conversation_id)

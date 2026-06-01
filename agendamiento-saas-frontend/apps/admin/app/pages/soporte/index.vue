@@ -113,12 +113,14 @@ async function suggestWithAI() {
   if (!support.activeId) return
   aiSuggesting.value = true
   try {
-    const res = await apiFetch<{ reply: string }>(
+    const res = await apiFetch<{ reply: string, unavailable?: boolean, detail?: string }>(
       `/support/conversations/${support.activeId}/ai-suggest-reply/`,
       { method: 'POST' }
     )
     if (res.reply) {
       inputText.value = res.reply
+    } else if (res.unavailable) {
+      toast.add({ title: 'IA no disponible en la demo', description: res.detail, color: 'info' })
     } else {
       toast.add({ title: 'La IA no pudo generar una sugerencia', color: 'warning' })
     }
