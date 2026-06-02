@@ -7,6 +7,7 @@ const { apiFetch } = useApi()
 const toast = useToast()
 
 const filters = reactive({
+  search: '',
   date: '',
   status: 'all',
   doctor: ''
@@ -42,6 +43,7 @@ async function load() {
   loading.value = true
   try {
     const params: Record<string, string> = {}
+    if (filters.search.trim()) params.search = filters.search.trim()
     if (filters.date) params.date = filters.date
     if (filters.status && filters.status !== 'all') params.status = filters.status
     if (filters.doctor) params.doctor = filters.doctor
@@ -63,7 +65,8 @@ async function updateStatus(appt: Appointment, status: string) {
   load()
 }
 
-watch(filters, load, { immediate: true })
+// Debounce so typing in the search box doesn't fire a request per keystroke.
+watchDebounced(filters, load, { immediate: true, debounce: 350, deep: true })
 </script>
 
 <template>
@@ -79,7 +82,24 @@ watch(filters, load, { immediate: true })
     </div>
 
     <!-- Filters -->
-    <div class="flex gap-3 flex-wrap bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
+    <div class="flex gap-3 flex-wrap items-center bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
+      <UInput
+        v-model="filters.search"
+        icon="i-lucide-search"
+        placeholder="Buscar por nombre, correo o teléfono"
+        class="w-full sm:w-80"
+        :ui="{ trailing: 'pe-1' }"
+      >
+        <template v-if="filters.search" #trailing>
+          <UButton
+            color="neutral"
+            variant="link"
+            icon="i-lucide-x"
+            aria-label="Limpiar búsqueda"
+            @click="filters.search = ''"
+          />
+        </template>
+      </UInput>
       <UInput v-model="filters.date" type="date" class="w-44" />
       <USelect v-model="filters.status" :items="STATUS_OPTIONS" value-attribute="value" label-attribute="label" class="w-52" />
     </div>

@@ -206,4 +206,15 @@ class AppointmentViewSet(TenantScopedViewSet):
         if status_filter:
             qs = qs.filter(status=status_filter)
 
+        # Free-text search by patient contact (name / email / phone). Useful when
+        # a patient calls to reschedule and the agent searches by their details.
+        search = (self.request.query_params.get('search') or '').strip()
+        if search:
+            from django.db.models import Q
+            qs = qs.filter(
+                Q(patient_name__icontains=search)
+                | Q(patient_email__icontains=search)
+                | Q(patient_phone__icontains=search)
+            )
+
         return qs
