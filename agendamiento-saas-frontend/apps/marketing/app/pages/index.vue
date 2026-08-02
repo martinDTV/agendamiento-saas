@@ -129,24 +129,6 @@ const steps = [
   }
 ]
 
-const useCases = [
-  {
-    icon: 'i-lucide-stethoscope',
-    title: 'Médico independiente',
-    description: 'Una agenda limpia, recordatorios automáticos y una página propia sin contratar a un desarrollador.'
-  },
-  {
-    icon: 'i-lucide-building-2',
-    title: 'Clínica con varios doctores',
-    description: 'Coordina especialidades, sucursales y horarios desde un panel central con reportes por médico.'
-  },
-  {
-    icon: 'i-lucide-heart-pulse',
-    title: 'Consultorio en crecimiento',
-    description: 'Empieza gratis y sube de plan cuando lo necesites. La herramienta crece contigo.'
-  }
-]
-
 const testimonials = [
   {
     quote: 'Bajaron las inasistencias notablemente desde que los recordatorios salen solos por WhatsApp.',
@@ -169,58 +151,6 @@ const testimonials = [
 ]
 
 const { open: openLead } = useLeadModal()
-
-const plans = [
-  {
-    slug: 'gratuito',
-    title: 'Gratuito',
-    description: 'Para empezar y probar sin compromiso.',
-    price: '$0',
-    billing: 'MXN / mes',
-    features: [
-      'Hasta 2 doctores',
-      '50 citas al mes',
-      '1 sucursal',
-      'Recordatorios por correo',
-      'Agenda en línea'
-    ],
-    button: { label: 'Solicitar información', color: 'neutral', variant: 'subtle' }
-  },
-  {
-    slug: 'profesional',
-    title: 'Profesional',
-    description: 'Para el consultorio que quiere reducir inasistencias.',
-    price: '$549',
-    billing: 'MXN / mes',
-    highlight: true,
-    badge: 'Más popular',
-    features: [
-      'Hasta 3 doctores',
-      '500 citas al mes',
-      'Recordatorios por WhatsApp (300 incluidos)',
-      'Tu propio dominio',
-      'Página editable (CMS)',
-      'Reportes básicos'
-    ],
-    button: { label: 'Me interesa' }
-  },
-  {
-    slug: 'clinica',
-    title: 'Clínica',
-    description: 'Para varios doctores y sucursales.',
-    price: '$1,299',
-    billing: 'MXN / mes',
-    features: [
-      'Hasta 10 doctores',
-      '2,500 citas al mes',
-      'Hasta 5 sucursales',
-      'WhatsApp (1,000 incluidos)',
-      'Reportes avanzados',
-      'Soporte prioritario'
-    ],
-    button: { label: 'Solicitar información', color: 'neutral', variant: 'subtle' }
-  }
-]
 
 // Hero entrance + gallery auto-rotation.
 onMounted(async () => {
@@ -560,28 +490,6 @@ onBeforeUnmount(() => {
       </UContainer>
     </section>
 
-    <!-- 6. USE CASES -->
-    <section id="casos" class="py-8 sm:py-12">
-      <UContainer>
-        <div class="grid gap-4 md:grid-cols-3">
-          <article
-            v-for="(c, i) in useCases"
-            v-reveal="i * 80"
-            :key="i"
-            class="lift rounded-2xl border border-default bg-elevated/30 p-7"
-          >
-            <UIcon :name="c.icon" class="size-7 text-primary" />
-            <h3 class="mt-5 text-lg font-medium text-highlighted">
-              {{ c.title }}
-            </h3>
-            <p class="mt-2 text-muted">
-              {{ c.description }}
-            </p>
-          </article>
-        </div>
-      </UContainer>
-    </section>
-
     <!-- 7. TESTIMONIALS -->
     <section class="py-20 sm:py-28">
       <UContainer>
@@ -609,86 +517,6 @@ onBeforeUnmount(() => {
               </span>
             </figcaption>
           </figure>
-        </div>
-      </UContainer>
-    </section>
-
-    <!-- 8. PRICING -->
-    <section id="precios" class="py-20 sm:py-28">
-      <UContainer>
-        <div v-reveal class="max-w-2xl">
-          <h2 class="text-3xl font-medium tracking-tight text-highlighted sm:text-4xl">
-            Precios claros, en pesos
-          </h2>
-          <p class="mt-4 text-lg leading-relaxed text-muted">
-            Empieza gratis. Sube de plan cuando tu consultorio lo pida. Sin contratos forzosos.
-          </p>
-        </div>
-
-        <div class="mt-12 grid gap-6 lg:grid-cols-3 items-stretch">
-        <div
-          v-for="(p, i) in plans"
-          v-reveal="i * 90"
-          :key="i"
-          class="relative flex flex-col rounded-2xl border p-6"
-          :class="p.highlight ? 'border-primary ring-1 ring-primary shadow-lg' : 'border-default'"
-        >
-          <UBadge
-            v-if="p.badge"
-            :label="p.badge"
-            color="secondary"
-            class="absolute -top-3 left-6"
-          />
-          <h3 class="text-lg font-semibold text-highlighted">
-            {{ p.title }}
-          </h3>
-          <p class="mt-1 text-sm text-muted min-h-10">
-            {{ p.description }}
-          </p>
-          <div class="mt-4 flex items-baseline gap-1.5">
-            <span class="text-4xl font-semibold text-highlighted tracking-tight">{{ p.price }}</span>
-            <span class="text-sm text-muted">{{ p.billing }}</span>
-          </div>
-          <p class="mt-1 text-xs text-dimmed">
-            Precio de referencia
-          </p>
-          <UButton
-            class="mt-5 justify-center"
-            block
-            v-bind="p.button"
-            @click="openLead(p.slug)"
-          />
-          <USeparator class="my-5" />
-          <ul class="space-y-3 flex-1">
-            <li
-              v-for="(feat, j) in p.features"
-              :key="j"
-              class="flex items-start gap-2.5 text-sm text-default"
-            >
-              <UIcon name="i-lucide-check" class="size-4 text-primary shrink-0 mt-0.5" />
-              {{ feat }}
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Enterprise strip -->
-      <div v-reveal class="mt-6 rounded-2xl border border-default bg-elevated/40 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h3 class="text-base font-semibold text-highlighted">
-            ¿Cadena de clínicas o necesidades especiales?
-          </h3>
-          <p class="text-sm text-muted">
-            Doctores y citas ilimitados, white-label e integraciones a la medida.
-          </p>
-        </div>
-        <UButton
-          label="Contactar ventas"
-          color="neutral"
-          variant="subtle"
-          trailing-icon="i-lucide-arrow-right"
-          @click="openLead('enterprise')"
-        />
         </div>
       </UContainer>
     </section>

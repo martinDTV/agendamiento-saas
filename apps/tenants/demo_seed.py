@@ -129,7 +129,7 @@ def flush_tenant(tenant):
     Membership._all.filter(tenant=tenant).delete()
 
 
-def seed_tenant(tenant, *, admin_email=None, admin_password="Demo2024!", log=None):
+def seed_tenant(tenant, *, admin_email=None, admin_password="Demo2024!", minimal=False, log=None):
     """
     Populate `tenant` with demo data. Returns a dict summary.
 
@@ -149,6 +149,18 @@ def seed_tenant(tenant, *, admin_email=None, admin_password="Demo2024!", log=Non
     )
     _gor_create(Membership, tenant, {"user": admin_user}, {"role": MembershipRole.OWNER})
     log(f"  ✔  Admin: {admin_email}")
+
+    if minimal:
+        # Demo autoservicio: solo la cuenta admin. El usuario arma su clínica
+        # desde cero — sin sucursales, doctores, servicios ni citas sembradas
+        # (y por tanto sin datos fantasma en reportes).
+        return {
+            "admin_email": admin_email,
+            "admin_password": admin_password,
+            "doctors": 0,
+            "services": 0,
+            "appointments": 0,
+        }
 
     branches = []
     for b in BRANCHES:

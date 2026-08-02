@@ -41,6 +41,12 @@ services:
       DEMO_TENANT_TTL_DAYS: ${DEMO_TENANT_TTL_DAYS:-7}
       ALLOWED_HOSTS: ".${DEMO_DOMAIN},${DEMO_DOMAIN},backend,localhost,127.0.0.1"
       REDIS_URL: redis://redis:6379/1
+      # SMTP real (Gmail). Sin estas vars, demo_settings cae a consola.
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
+    # Uploads (logos, fotos) sobreviven rebuilds del contenedor.
+    volumes:
+      - demo_media:/app/media
 
   redis:
     image: redis:7-alpine
@@ -87,6 +93,18 @@ services:
     depends_on:
       - backend
 
+  # Platform superadmin panel → platform.demo-agendamiento.nexosoftdev.com
+  platform:
+    build:
+      context: ../../agendamiento-saas-frontend
+      dockerfile: ../deploy/demo/Dockerfile.platform
+      args:
+        NUXT_PUBLIC_API_BASE: https://${DEMO_DOMAIN}/rest/v1
+        NUXT_PUBLIC_PLATFORM_DOMAIN: ${DEMO_DOMAIN}
+    restart: unless-stopped
+    depends_on:
+      - backend
+
   # Public marketing landing → agendamiento.nexosoftdev.com
   marketing:
     build:
@@ -120,8 +138,10 @@ services:
       - frontend
       - marketing
       - admin
+      - platform
 
 volumes:
   demo_pgdata:
+  demo_media:
   caddy_data:
   caddy_config:

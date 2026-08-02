@@ -14,6 +14,7 @@
 
 # Wildcard demo domain. A single site block handles every clinic subdomain to
 # avoid ambiguity between overlapping wildcards. Routing inside:
+#   - platform.demo-...        → Nuxt platform superadmin panel
 #   - admin-<clinic>.demo-...  → Nuxt admin panel
 #   - <clinic>.demo-...        → Nuxt patient booking site
 #   - /rest, /dadmin, /static, /media → Django backend (any host)
@@ -27,6 +28,10 @@
 	# /ws/* is the Channels (Daphne) support chat; reverse_proxy upgrades it.
 	@backend path /rest/* /ws/* /dadmin/* /static/* /media/*
 	reverse_proxy @backend backend:8000
+
+	# Platform superadmin panel: platform.demo-agendamiento.nexosoftdev.com
+	@platformhost header_regexp Host ^platform\.
+	reverse_proxy @platformhost platform:3000
 
 	# Admin panel hosts: admin-<clinic>.demo-agendamiento.nexosoftdev.com
 	# (host matcher with * only matches a whole label, so use a regexp to match

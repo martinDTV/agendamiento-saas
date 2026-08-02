@@ -190,6 +190,21 @@ class MembershipViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return Membership.objects.for_tenant(self.request.tenant).select_related('user')
 
+    def perform_update(self, serializer):
+        # Cambios de rol también respetan los límites del plan demo.
+        from apps.tenants.demo_limits import demo_role_error
+
+        instance = serializer.instance
+        new_role = serializer.validated_data.get('role')
+        if new_role and new_role != instance.role:
+            msg = demo_role_error(
+                self.request.tenant, new_role, exclude_membership_id=instance.id,
+            )
+            if msg:
+                from rest_framework.exceptions import PermissionDenied
+                raise PermissionDenied(msg)
+        serializer.save()
+
     def perform_destroy(self, instance):
         if instance.role == MembershipRole.OWNER:
             from rest_framework.exceptions import PermissionDenied

@@ -65,6 +65,21 @@ class InvitationCreateSerializer(serializers.Serializer):
             raise serializers.ValidationError('Este usuario ya es miembro del tenant.')
         return value
 
+    def validate(self, attrs):
+        from apps.accounts.models import InvitationToken
+        from apps.tenants.demo_limits import demo_role_error
+
+        tenant = self.context['tenant']
+        role = attrs['role']
+        # Las invitaciones sin aceptar ya comprometen un cupo del plan demo.
+        pending = InvitationToken.objects.for_tenant(tenant).filter(
+            role=role, accepted_at__isnull=True,
+        ).count()
+        msg = demo_role_error(tenant, role, extra_pending=pending)
+        if msg:
+            raise serializers.ValidationError(msg)
+        return attrs
+
 
 class InvitationTokenSerializer(serializers.ModelSerializer):
     class Meta:

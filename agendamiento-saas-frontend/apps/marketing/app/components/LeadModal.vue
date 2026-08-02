@@ -48,7 +48,7 @@ async function submit() {
         phone: form.phone.trim(),
         plan: selectedPlan.value,
         message: form.message.trim(),
-        source: 'precios'
+        source: 'landing'
       }
     })
     status.value = 'success'

@@ -8,7 +8,7 @@ useBranding()
 const router = useRouter()
 const currentPath = computed(() => router.currentRoute.value.path)
 
-type NavItem = { label: string; icon?: string; to?: string; divider?: boolean; admin?: boolean }
+type NavItem = { label: string; icon?: string; to?: string; divider?: boolean; admin?: boolean; demoHidden?: boolean }
 
 const allNav: NavItem[] = [
   { label: 'Inicio',     icon: 'i-lucide-home',           to: '/' },
@@ -22,15 +22,19 @@ const allNav: NavItem[] = [
   { label: 'Salas',      icon: 'i-lucide-door-open',      to: '/salas',    admin: true },
   { divider: true, label: 'Análisis', admin: true },
   { label: 'Reportes',   icon: 'i-lucide-bar-chart-2',    to: '/reports',  admin: true },
-  { divider: true, label: 'Atención al cliente' },
-  { label: 'Soporte',    icon: 'i-lucide-message-circle', to: '/soporte' },
-  { label: 'Agentes',    icon: 'i-lucide-users-round',    to: '/soporte/agentes', admin: true },
+  { divider: true, label: 'Atención al cliente', demoHidden: true },
+  { label: 'Soporte',    icon: 'i-lucide-message-circle', to: '/soporte', demoHidden: true },
+  { label: 'Agentes',    icon: 'i-lucide-users-round',    to: '/soporte/agentes', admin: true, demoHidden: true },
   { divider: true, label: 'Configuración' },
   { label: 'Equipo',     icon: 'i-lucide-users',          to: '/equipo',   admin: true },
   { label: 'Ajustes',    icon: 'i-lucide-settings',       to: '/ajustes' }
 ]
 
-const nav = computed(() => allNav.filter(i => !i.admin || isAdmin.value))
+// El plan demo no incluye el módulo de soporte ni agentes.
+const isDemo = computed(() => tenant.tenant?.plan === 'demo')
+const nav = computed(() => allNav.filter(i =>
+  (!i.admin || isAdmin.value) && !(i.demoHidden && isDemo.value)
+))
 
 const pageTitle = computed(() => {
   const found = nav.value.filter(n => !n.divider).find(n => n.to === currentPath.value)

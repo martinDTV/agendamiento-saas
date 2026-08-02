@@ -54,6 +54,12 @@ ALLOWED_HOSTS = os.getenv(
     f'localhost,127.0.0.1,{PLATFORM_DOMAIN},.{PLATFORM_DOMAIN}',
 ).split(',')
 
+# URLs públicas del demo — sin esto los emails de invitación/activación salen
+# con el default de desarrollo (admin.{slug}.miapp.com:3002).
+# El panel admin por tenant vive en admin-<slug>.<dominio> (ver Caddyfile).
+ADMIN_BASE_URL_TEMPLATE = f'https://admin-{{slug}}.{PLATFORM_DOMAIN}'
+MEDIA_BASE_URL = f'https://{PLATFORM_DOMAIN}'
+
 # Swap the tenant middleware for the auto-creating demo variant.
 MIDDLEWARE = [
     'apps.tenants.middleware.DemoTenantMiddleware'
@@ -61,9 +67,16 @@ MIDDLEWARE = [
     for m in _BASE_MIDDLEWARE
 ]
 
-# ── No real outbound messages in demo ───────────────────────────────────────────
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'demo@demo-agendamiento.nexosoftdev.com'
+# ── Email ─────────────────────────────────────────────────────────────────────
+# Con credenciales SMTP en el entorno (EMAIL_HOST_USER/PASSWORD) se envían
+# correos reales (host/puerto/TLS vienen de core.settings). Sin credenciales,
+# consola: los correos solo se imprimen en los logs del backend.
+if os.getenv('EMAIL_HOST_USER'):
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', os.environ['EMAIL_HOST_USER'])
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+    DEFAULT_FROM_EMAIL = 'demo@demo-agendamiento.nexosoftdev.com'
 
 # Disable WhatsApp / SMS sending if the project reads these flags.
 WHATSAPP_ENABLED = False

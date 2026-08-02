@@ -174,6 +174,33 @@ class PlatformTenantViewSet(viewsets.ModelViewSet):
         return qs
 
     @transaction.atomic
+    def perform_destroy(self, instance):
+        """
+        Borra el tenant y toda su data scoped en orden explícito.
+
+        Un `tenant.delete()` directo truena con ProtectedError: la cascada
+        Tenant→Doctor/Service choca con Appointment.doctor/service (PROTECT),
+        aunque las citas también caerían por su propia FK al tenant (limitación
+        del collector de Django con diamantes CASCADE+PROTECT). Mismo orden que
+        el comando purge_demo_tenants.
+        """
+        from apps.bookings.models import Appointment
+        from apps.catalog.models import Branch, Doctor, Schedule, Service
+
+        Appointment._all.filter(tenant=instance).delete()
+        Schedule._all.filter(tenant=instance).delete()
+        Doctor._all.filter(tenant=instance).delete()
+        Service._all.filter(tenant=instance).delete()
+        Branch._all.filter(tenant=instance).delete()
+        Membership._all.filter(tenant=instance).delete()
+
+        # Usuarios namespaced creados solo para tenants demo; los usuarios
+        # reales pueden pertenecer a otros tenants y no se tocan.
+        User.objects.filter(email__endswith=f'@{instance.slug}.demo.local').delete()
+
+        instance.delete()
+
+    @transaction.atomic
     def create(self, request, *args, **kwargs):
         """
         Provisiona un tenant nuevo en una sola operación atómica:

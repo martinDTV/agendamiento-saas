@@ -74,12 +74,15 @@ const inviteEmail = ref('')
 const inviteRole = ref<string>('staff')
 const inviting = ref(false)
 
-const roleOptions = [
+// El plan demo no permite usuarios de soporte.
+const tenantStore = useTenantStore()
+const isDemo = computed(() => tenantStore.tenant?.plan === 'demo')
+const roleOptions = computed(() => [
   { label: 'Admin', value: 'admin' },
   { label: 'Doctor', value: 'doctor' },
-  { label: 'Soporte', value: 'support' },
+  ...(isDemo.value ? [] : [{ label: 'Soporte', value: 'support' }]),
   { label: 'Staff', value: 'staff' }
-]
+])
 
 const roleLabels: Record<string, string> = {
   owner: 'Propietario',
@@ -127,7 +130,7 @@ onMounted(load)
       <div>
         <h1 class="text-2xl font-bold">Equipo</h1>
         <p class="text-sm text-slate-400 mt-0.5">
-          Invitá usuarios por correo con cualquier rol (admin, doctor, soporte, staff).
+          Invitá usuarios por correo con el rol que necesites.
           Para crear un doctor con todos los datos cargados de una vez (especialidad, sucursal, foto), también podés usar
           <NuxtLink to="/doctors" class="text-sage-600 font-medium hover:underline">Doctores</NuxtLink>.
         </p>
@@ -148,7 +151,7 @@ onMounted(load)
             <UInput v-model="inviteEmail" type="email" placeholder="usuario@ejemplo.com" autofocus class="w-full" />
           </UFormField>
 
-          <UFormField label="Rol" hint="Soporte: atiende el chat público | Staff: acceso básico al panel">
+          <UFormField label="Rol" :hint="isDemo ? 'Staff: acceso básico al panel' : 'Soporte: atiende el chat público | Staff: acceso básico al panel'">
             <USelect
               v-model="inviteRole"
               :items="roleOptions"

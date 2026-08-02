@@ -109,7 +109,7 @@ class TenantMiddleware:
 
 # Slugs that must never become a demo clinic (system / reserved subdomains).
 DEMO_RESERVED_SLUGS = {
-    'admin', 'www', 'api', 'app', 'demo', 'demo-agendamiento',
+    'admin', 'www', 'api', 'app', 'demo', 'demo-agendamiento', 'platform',
     'static', 'media', 'assets', 'mail', 'smtp', 'ftp', 'ns', 'ns1', 'ns2',
 }
 
@@ -182,7 +182,7 @@ def get_or_create_demo_tenant(slug, client_ip=None):
             },
         )
         if created:
-            seed_tenant(tenant)
+            seed_tenant(tenant, minimal=True)
 
     # Count this creation against the IP's daily quota (expires after ~24h).
     if created and quota_key:

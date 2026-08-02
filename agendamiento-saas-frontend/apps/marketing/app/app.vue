@@ -24,9 +24,7 @@ useSeoMeta({
 
 const navLinks = [
   { label: 'Funciones', to: '#funciones' },
-  { label: 'Cómo funciona', to: '#como-funciona' },
-  { label: 'Casos', to: '#casos' },
-  { label: 'Precios', to: '#precios' }
+  { label: 'Cómo funciona', to: '#como-funciona' }
 ]
 
 const year = new Date().getFullYear()
@@ -107,8 +105,6 @@ const year = new Date().getFullYear()
               </h3>
               <ul class="space-y-2 text-sm text-muted">
                 <li><NuxtLink to="/funciones" class="hover:text-default">Funciones</NuxtLink></li>
-                <li><NuxtLink to="/#precios" class="hover:text-default">Precios</NuxtLink></li>
-                <li><NuxtLink to="/#casos" class="hover:text-default">Casos de uso</NuxtLink></li>
               </ul>
             </div>
             <div>

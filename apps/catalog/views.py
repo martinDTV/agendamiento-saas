@@ -114,6 +114,11 @@ class DoctorViewSet(TenantScopedViewSet):
 
         tenant = request.tenant
 
+        from apps.tenants.demo_limits import demo_role_error
+        limit_msg = demo_role_error(tenant, role)
+        if limit_msg:
+            return Response({'detail': limit_msg}, status=status.HTTP_403_FORBIDDEN)
+
         user, created = User.objects.get_or_create(
             email=email,
             defaults={
